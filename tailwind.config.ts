@@ -62,6 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				twitter: {
+					blue: '#1D9BF0',
+					black: '#000000',
+					darkGray: '#2F3336',
+					lightGray: '#71767B',
+					extraLightGray: '#E7E9EA',
+					white: '#FFFFFF',
 				}
 			},
 			borderRadius: {

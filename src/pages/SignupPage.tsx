@@ -2,16 +2,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SignupForm from '@/components/auth/SignupForm';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, X } from 'lucide-react';
 
 const SignupPage = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-secondary/30">
-      <header className="border-b bg-white py-4 px-4">
+    <div className="min-h-screen flex flex-col bg-background">
+      <header className="border-b border-border py-4 px-4">
         <div className="container mx-auto">
           <Link to="/" className="flex items-center gap-2">
-            <GraduationCap className="h-6 w-6 text-orange-500" />
-            <span className="text-xl font-bold text-orange-500">OccxLearn</span>
+            <X className="h-6 w-6 text-foreground" />
+            <span className="text-xl font-bold text-foreground">OccxLearn</span>
           </Link>
         </div>
       </header>
@@ -22,7 +22,7 @@ const SignupPage = () => {
         </div>
       </div>
       
-      <footer className="py-4 text-center text-sm text-muted-foreground">
+      <footer className="py-4 text-center text-sm text-muted-foreground border-t border-border">
         <div className="container mx-auto">
           &copy; 2025 OccxLearn. All rights reserved. Developed by OCS
         </div>
