@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,9 +25,10 @@ import { supabase } from '@/integrations/supabase/client';
 
 type UserRole = 'admin' | 'teacher' | 'student';
 
-const LoginForm = () => {
+const SignupForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<UserRole>('student');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,36 +38,41 @@ const LoginForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure your passwords match",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          data: {
+            role,
+          }
+        }
       });
       
       if (error) throw error;
       
-      const userRole = data.user?.user_metadata?.role || 'student';
-      
-      localStorage.setItem('userRole', userRole);
       toast({
-        title: "Login successful",
-        description: `Welcome to OccxLearn!`,
+        title: "Account created successfully",
+        description: "Please check your email to confirm your account",
       });
       
-      // Redirect based on role
-      if (userRole === 'admin') {
-        navigate('/admin/dashboard');
-      } else if (userRole === 'teacher') {
-        navigate('/teacher/dashboard');
-      } else {
-        navigate('/student/dashboard');
-      }
+      navigate('/login');
     } catch (error: any) {
       toast({
-        title: "Login failed",
-        description: error.message || "Please check your credentials and try again.",
+        title: "Sign up failed",
+        description: error.message || "Something went wrong",
         variant: "destructive",
       });
     } finally {
@@ -74,12 +80,16 @@ const LoginForm = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignup = async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
           redirectTo: `${window.location.origin}/dashboard`,
         }
       });
@@ -88,7 +98,7 @@ const LoginForm = () => {
       
     } catch (error: any) {
       toast({
-        title: "Google login failed",
+        title: "Google sign up failed",
         description: error.message || "Something went wrong",
         variant: "destructive",
       });
@@ -102,15 +112,15 @@ const LoginForm = () => {
         <div className="flex justify-center mb-2">
           <GraduationCap className="h-12 w-12 text-orange-500" />
         </div>
-        <CardTitle className="text-2xl text-center">Login to OccxLearn</CardTitle>
+        <CardTitle className="text-2xl text-center">Sign up for OccxLearn</CardTitle>
         <CardDescription className="text-center">
-          Enter your credentials to access your account
+          Create an account to get started
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="role">Login as</Label>
+            <Label htmlFor="role">Register as</Label>
             <Select
               value={role}
               onValueChange={(value) => setRole(value as UserRole)}
@@ -139,15 +149,7 @@ const LoginForm = () => {
           </div>
           
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <a 
-                href="/forgot-password" 
-                className="text-sm text-orange-500 hover:underline"
-              >
-                Forgot password?
-              </a>
-            </div>
+            <Label htmlFor="password">Password</Label>
             <div className="relative">
               <Input
                 id="password"
@@ -173,8 +175,22 @@ const LoginForm = () => {
             </div>
           </div>
           
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+          
           <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? "Creating account..." : "Sign Up"}
           </Button>
         </form>
         
@@ -193,28 +209,28 @@ const LoginForm = () => {
           type="button" 
           variant="outline" 
           className="w-full" 
-          onClick={handleGoogleLogin}
+          onClick={handleGoogleSignup}
           disabled={isLoading}
         >
           <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
             <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
           </svg>
-          Login with Google
+          Sign up with Google
         </Button>
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
         <div className="text-center text-sm">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-orange-500 hover:underline">
-            Sign up
+          Already have an account?{' '}
+          <Link to="/login" className="text-orange-500 hover:underline">
+            Login
           </Link>
         </div>
         <p className="text-xs text-muted-foreground text-center">
-          By logging in, you agree to our Terms of Service and Privacy Policy.
+          By signing up, you agree to our Terms of Service and Privacy Policy.
         </p>
       </CardFooter>
     </Card>
   );
 };
 
-export default LoginForm;
+export default SignupForm;

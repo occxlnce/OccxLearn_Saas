@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import LoginForm from '@/components/auth/LoginForm';
+import SignupForm from '@/components/auth/SignupForm';
 import { GraduationCap } from 'lucide-react';
 
-const LoginPage = () => {
+const SignupPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-secondary/30">
       <header className="border-b bg-white py-4 px-4">
@@ -18,7 +18,7 @@ const LoginPage = () => {
       
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <LoginForm />
+          <SignupForm />
         </div>
       </div>
       
@@ -31,4 +31,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;
