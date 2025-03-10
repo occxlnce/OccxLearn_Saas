@@ -63,13 +63,19 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				twitter: {
-					blue: '#1D9BF0',
-					black: '#000000',
-					darkGray: '#2F3336',
-					lightGray: '#71767B',
-					extraLightGray: '#E7E9EA',
-					white: '#FFFFFF',
+				orange: {
+					DEFAULT: '#F97316',
+					50: '#FEEDD7',
+					100: '#FDE2C3',
+					200: '#FBCA9B',
+					300: '#FAB274',
+					400: '#F89A4C',
+					500: '#F97316',
+					600: '#D25A06',
+					700: '#9C4304',
+					800: '#662C03',
+					900: '#301501',
+					950: '#180A00',
 				}
 			},
 			borderRadius: {

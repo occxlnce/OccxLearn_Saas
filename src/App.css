@@ -11,59 +11,59 @@ body {
   color: #fff;
 }
 
-.twitter-blur {
+.custom-blur {
   backdrop-filter: blur(12px);
   background-color: rgba(0, 0, 0, 0.65);
 }
 
-.twitter-card {
-  border-color: rgb(47, 51, 54);
+.custom-card {
+  border-color: #333;
   border-width: 1px;
   border-style: solid;
   transition: background-color 0.2s;
 }
 
-.twitter-card:hover {
+.custom-card:hover {
   background-color: rgba(255, 255, 255, 0.03);
 }
 
-.twitter-button {
-  background-color: rgb(29, 155, 240);
+.custom-button {
+  background-color: #F97316;
   color: white;
   border-radius: 9999px;
   font-weight: 700;
   transition: background-color 0.2s;
 }
 
-.twitter-button:hover {
-  background-color: rgb(26, 140, 216);
+.custom-button:hover {
+  background-color: #EA580C;
 }
 
-.twitter-icon {
-  color: rgb(113, 118, 123);
+.custom-icon {
+  color: #888;
   transition: color 0.2s;
 }
 
-.twitter-icon:hover {
-  color: rgb(29, 155, 240);
+.custom-icon:hover {
+  color: #F97316;
 }
 
-.twitter-link {
-  color: rgb(29, 155, 240);
+.custom-link {
+  color: #F97316;
   text-decoration: none;
 }
 
-.twitter-link:hover {
+.custom-link:hover {
   text-decoration: underline;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .twitter-spin {
-    animation: twitter-logo-spin infinite 20s linear;
+  .custom-spin {
+    animation: custom-logo-spin infinite 20s linear;
   }
 }
 
-@keyframes twitter-logo-spin {
+@keyframes custom-logo-spin {
   from {
     transform: rotate(0deg);
   }

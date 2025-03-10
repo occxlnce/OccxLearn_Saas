@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SignupForm from '@/components/auth/SignupForm';
-import { GraduationCap, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const SignupPage = () => {
   return (
@@ -10,7 +10,7 @@ const SignupPage = () => {
       <header className="border-b border-border py-4 px-4">
         <div className="container mx-auto">
           <Link to="/" className="flex items-center gap-2">
-            <X className="h-6 w-6 text-foreground" />
+            <X className="h-6 w-6 text-orange-500" />
             <span className="text-xl font-bold text-foreground">OccxLearn</span>
           </Link>
         </div>
