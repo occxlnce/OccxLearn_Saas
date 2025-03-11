@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -554,5 +555,39 @@ const LandingPage = () => {
                 <ul className="space-y-2 text-gray-400">
                   <li><a href="#features" className="hover:text-orange-400">Features</a></li>
                   <li><a href="#benefits" className="hover:text-orange-400">Benefits</a></li>
-                  <li><a href="#testimonials" className="hover:text-orange-400">Test
+                  <li><a href="#testimonials" className="hover:text-orange-400">Testimonials</a></li>
+                  <li><a href="#pricing" className="hover:text-orange-400">Pricing</a></li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-4 text-orange-500">Company</h3>
+                <ul className="space-y-2 text-gray-400">
+                  <li><a href="#" className="hover:text-orange-400">About Us</a></li>
+                  <li><a href="#" className="hover:text-orange-400">Careers</a></li>
+                  <li><a href="#" className="hover:text-orange-400">Blog</a></li>
+                  <li><a href="#" className="hover:text-orange-400">Contact</a></li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-4 text-orange-500">Legal</h3>
+                <ul className="space-y-2 text-gray-400">
+                  <li><a href="#" className="hover:text-orange-400">Terms of Service</a></li>
+                  <li><a href="#" className="hover:text-orange-400">Privacy Policy</a></li>
+                  <li><a href="#" className="hover:text-orange-400">Cookie Policy</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-12 pt-8 border-t border-white/10 text-center text-gray-400 text-sm">
+            <p>&copy; 2025 OccxLearn. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
 
+export default LandingPage;
