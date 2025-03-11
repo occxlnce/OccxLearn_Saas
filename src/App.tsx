@@ -12,9 +12,9 @@ import SignupPage from "./pages/SignupPage";
 import NotFound from "./pages/NotFound";
 
 // Dashboard Pages
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
-import TeacherDashboard from "./pages/dashboard/TeacherDashboard";
-import StudentDashboard from "./pages/dashboard/StudentDashboard";
+import AdminDashboard from "./pages/dashboard/admin/Dashboard";
+import TeacherDashboard from "./pages/dashboard/teacher/Dashboard";
+import StudentDashboard from "./pages/dashboard/student/Dashboard";
 
 const queryClient = new QueryClient();
 

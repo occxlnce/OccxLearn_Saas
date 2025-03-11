@@ -2,26 +2,27 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, GraduationCap, Users, CheckCircle, BarChart, School, Calendar, FileText, PenTool, CheckCircle2, Clock, Award, Brain, Lightbulb, LucideShield } from 'lucide-react';
+import { BookOpen, GraduationCap, Users, CheckCircle, BarChart, School, Calendar, FileText, PenTool, CheckCircle2, Clock, Award, Brain, Lightbulb, LucideShield, Star, Quote } from 'lucide-react';
 
 const LandingPage = () => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-black text-white">
       {/* Navigation */}
-      <header className="border-b bg-white sticky top-0 z-10">
+      <header className="glassmorphism-nav sticky top-0 z-10">
         <div className="container mx-auto py-4 px-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-8 w-8 text-orange-500" />
             <span className="text-2xl font-bold text-orange-500">OccxLearn</span>
           </div>
           <nav className="hidden md:flex items-center gap-6">
-            <a href="#features" className="text-black hover:text-orange-500 transition-colors">Features</a>
-            <a href="#benefits" className="text-black hover:text-orange-500 transition-colors">Benefits</a>
-            <a href="#pricing" className="text-black hover:text-orange-500 transition-colors">Pricing</a>
+            <a href="#features" className="text-white hover:text-orange-500 transition-colors">Features</a>
+            <a href="#benefits" className="text-white hover:text-orange-500 transition-colors">Benefits</a>
+            <a href="#testimonials" className="text-white hover:text-orange-500 transition-colors">Testimonials</a>
+            <a href="#pricing" className="text-white hover:text-orange-500 transition-colors">Pricing</a>
           </nav>
           <div className="flex items-center gap-3">
             <Link to="/login">
-              <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50">Login</Button>
+              <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50/10">Login</Button>
             </Link>
             <Link to="/signup">
               <Button className="bg-orange-500 text-white hover:bg-orange-600">Sign Up</Button>
@@ -31,8 +32,14 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 md:py-32 bg-gradient-to-br from-orange-500 to-orange-600">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-20 md:py-32 bg-gradient-to-br from-orange-500 to-orange-600 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/30 z-0"></div>
+        <div className="absolute inset-0 z-0 opacity-20" style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80')",
+          backgroundSize: "cover",
+          backgroundPosition: "center"
+        }}></div>
+        <div className="container mx-auto px-4 text-center relative z-1">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">Transform Your School Management</h1>
           <p className="text-xl text-white/90 mb-10 max-w-3xl mx-auto">
             The comprehensive platform designed for schools to simplify administration, enhance teaching, and improve the learning experience.
@@ -53,157 +60,153 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-white">
+      <section id="features" className="py-20 bg-black">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">Powerful Features</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-4 text-white">Powerful Features</h2>
+          <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
             OccxLearn offers a complete set of tools for both private and public schools to manage every aspect of education.
           </p>
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <Card className="card-hover border-t-4 border-t-orange-500 transform transition-all duration-300 hover:-translate-y-2">
+            {/* Feature cards with hover effects */}
+            <Card className="bg-black/40 border-orange-500/30 card-hover transform transition-all duration-300 hover:-translate-y-2">
               <CardHeader>
                 <Users className="h-10 w-10 text-orange-500 mb-4" />
-                <CardTitle>Student & Teacher Management</CardTitle>
-                <CardDescription>Effortlessly manage all your records</CardDescription>
+                <CardTitle className="text-white">Student & Teacher Management</CardTitle>
+                <CardDescription className="text-gray-400">Effortlessly manage all your records</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-gray-300">
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Complete student profiles</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Teacher qualification tracking</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Role-based permissions</span>
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            {/* Feature 2 */}
-            <Card className="card-hover border-t-4 border-t-orange-500 transform transition-all duration-300 hover:-translate-y-2">
+            <Card className="bg-black/40 border-orange-500/30 card-hover transform transition-all duration-300 hover:-translate-y-2">
               <CardHeader>
                 <BookOpen className="h-10 w-10 text-orange-500 mb-4" />
-                <CardTitle>Curriculum Management</CardTitle>
-                <CardDescription>Organize all educational materials</CardDescription>
+                <CardTitle className="text-white">Curriculum Management</CardTitle>
+                <CardDescription className="text-gray-400">Organize all educational materials</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-gray-300">
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Syllabus repository</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Learning resource sharing</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Module guides for students</span>
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            {/* Feature 3 */}
-            <Card className="card-hover border-t-4 border-t-orange-500 transform transition-all duration-300 hover:-translate-y-2">
+            <Card className="bg-black/40 border-orange-500/30 card-hover transform transition-all duration-300 hover:-translate-y-2">
               <CardHeader>
                 <BarChart className="h-10 w-10 text-orange-500 mb-4" />
-                <CardTitle>Performance Tracking</CardTitle>
-                <CardDescription>Monitor and analyze progress</CardDescription>
+                <CardTitle className="text-white">Performance Tracking</CardTitle>
+                <CardDescription className="text-gray-400">Monitor and analyze progress</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-gray-300">
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Comprehensive exam results</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Attendance monitoring</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Visualized progress reports</span>
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            {/* Feature 4 */}
-            <Card className="card-hover border-t-4 border-t-orange-500 transform transition-all duration-300 hover:-translate-y-2">
+            {/* More feature cards */}
+            <Card className="bg-black/40 border-orange-500/30 card-hover transform transition-all duration-300 hover:-translate-y-2">
               <CardHeader>
                 <Calendar className="h-10 w-10 text-orange-500 mb-4" />
-                <CardTitle>Timetable Management</CardTitle>
-                <CardDescription>Effortless scheduling for everyone</CardDescription>
+                <CardTitle className="text-white">Timetable Management</CardTitle>
+                <CardDescription className="text-gray-400">Effortless scheduling for everyone</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-gray-300">
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Interactive timetable builder</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Conflict detection</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Room allocation system</span>
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            {/* Feature 5 */}
-            <Card className="card-hover border-t-4 border-t-orange-500 transform transition-all duration-300 hover:-translate-y-2">
+            <Card className="bg-black/40 border-orange-500/30 card-hover transform transition-all duration-300 hover:-translate-y-2">
               <CardHeader>
                 <FileText className="h-10 w-10 text-orange-500 mb-4" />
-                <CardTitle>Document Management</CardTitle>
-                <CardDescription>Centralized document repository</CardDescription>
+                <CardTitle className="text-white">Document Management</CardTitle>
+                <CardDescription className="text-gray-400">Centralized document repository</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-gray-300">
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Secure file storage</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Permission-based access</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Version control for documents</span>
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            {/* Feature 6 */}
-            <Card className="card-hover border-t-4 border-t-orange-500 transform transition-all duration-300 hover:-translate-y-2">
+            <Card className="bg-black/40 border-orange-500/30 card-hover transform transition-all duration-300 hover:-translate-y-2">
               <CardHeader>
                 <School className="h-10 w-10 text-orange-500 mb-4" />
-                <CardTitle>School Analytics</CardTitle>
-                <CardDescription>Data-driven decision making</CardDescription>
+                <CardTitle className="text-white">School Analytics</CardTitle>
+                <CardDescription className="text-gray-400">Data-driven decision making</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-gray-300">
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Performance trends</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Attendance insights</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-orange-500" />
                     <span>Resource utilization reports</span>
                   </li>
                 </ul>
@@ -214,21 +217,21 @@ const LandingPage = () => {
       </section>
 
       {/* Benefits Section */}
-      <section id="benefits" className="py-20 bg-gray-50">
+      <section id="benefits" className="py-20 bg-black/60">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">Benefits for Everyone</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-4 text-white">Benefits for Everyone</h2>
+          <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
             OccxLearn delivers unique advantages for each user role in your school
           </p>
           
           <div className="grid md:grid-cols-3 gap-12">
             {/* Admin Benefits */}
             <div className="flex flex-col items-center text-center group">
-              <div className="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center mb-4 group-hover:bg-orange-500 transition-colors duration-300">
+              <div className="w-20 h-20 rounded-full bg-orange-900/40 flex items-center justify-center mb-4 group-hover:bg-orange-500 transition-colors duration-300">
                 <LucideShield className="h-10 w-10 text-orange-500 group-hover:text-white transition-colors duration-300" />
               </div>
-              <h3 className="text-xl font-bold mb-3">For Administrators</h3>
-              <ul className="space-y-3">
+              <h3 className="text-xl font-bold mb-3 text-white">For Administrators</h3>
+              <ul className="space-y-3 text-gray-300">
                 <li className="flex items-center text-left">
                   <CheckCircle2 className="h-5 w-5 text-orange-500 mr-2 flex-shrink-0" />
                   <span>Complete oversight of school operations</span>
@@ -250,11 +253,11 @@ const LandingPage = () => {
 
             {/* Teacher Benefits */}
             <div className="flex flex-col items-center text-center group">
-              <div className="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center mb-4 group-hover:bg-orange-500 transition-colors duration-300">
+              <div className="w-20 h-20 rounded-full bg-orange-900/40 flex items-center justify-center mb-4 group-hover:bg-orange-500 transition-colors duration-300">
                 <PenTool className="h-10 w-10 text-orange-500 group-hover:text-white transition-colors duration-300" />
               </div>
-              <h3 className="text-xl font-bold mb-3">For Teachers</h3>
-              <ul className="space-y-3">
+              <h3 className="text-xl font-bold mb-3 text-white">For Teachers</h3>
+              <ul className="space-y-3 text-gray-300">
                 <li className="flex items-center text-left">
                   <CheckCircle2 className="h-5 w-5 text-orange-500 mr-2 flex-shrink-0" />
                   <span>Simplified lesson planning and delivery</span>
@@ -276,11 +279,11 @@ const LandingPage = () => {
 
             {/* Student Benefits */}
             <div className="flex flex-col items-center text-center group">
-              <div className="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center mb-4 group-hover:bg-orange-500 transition-colors duration-300">
+              <div className="w-20 h-20 rounded-full bg-orange-900/40 flex items-center justify-center mb-4 group-hover:bg-orange-500 transition-colors duration-300">
                 <Brain className="h-10 w-10 text-orange-500 group-hover:text-white transition-colors duration-300" />
               </div>
-              <h3 className="text-xl font-bold mb-3">For Students</h3>
-              <ul className="space-y-3">
+              <h3 className="text-xl font-bold mb-3 text-white">For Students</h3>
+              <ul className="space-y-3 text-gray-300">
                 <li className="flex items-center text-left">
                   <CheckCircle2 className="h-5 w-5 text-orange-500 mr-2 flex-shrink-0" />
                   <span>24/7 access to learning materials</span>
@@ -303,16 +306,92 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-20 bg-black relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-900/20 to-black/80 z-0"></div>
+        <div className="container mx-auto px-4 relative z-1">
+          <h2 className="text-3xl font-bold text-center mb-4 text-white">What Schools Say About Us</h2>
+          <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
+            Hear directly from educators and administrators who have transformed their institutions with OccxLearn
+          </p>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Testimonial 1 */}
+            <div className="testimonial-card">
+              <div className="flex justify-center mb-6">
+                <Quote className="h-10 w-10 text-orange-500" />
+              </div>
+              <p className="mb-6 text-gray-300 italic">
+                "OccxLearn has revolutionized how we manage our school operations. The comprehensive dashboard gives us insights we never had before, and our teachers love the simplified grading system."
+              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-white">Dr. Sarah Johnson</p>
+                  <p className="text-sm text-gray-400">Principal, Westlake Academy</p>
+                </div>
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 text-orange-500" fill="#F97316" />
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonial 2 */}
+            <div className="testimonial-card">
+              <div className="flex justify-center mb-6">
+                <Quote className="h-10 w-10 text-orange-500" />
+              </div>
+              <p className="mb-6 text-gray-300 italic">
+                "The implementation of OccxLearn has significantly reduced our administrative overhead. Our staff now spends more time teaching and less time on paperwork. It's been a game-changer for our institution."
+              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-white">Michael Reynolds</p>
+                  <p className="text-sm text-gray-400">Director, Eastwood High School</p>
+                </div>
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 text-orange-500" fill={i < 4 ? "#F97316" : "none"} />
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonial 3 */}
+            <div className="testimonial-card">
+              <div className="flex justify-center mb-6">
+                <Quote className="h-10 w-10 text-orange-500" />
+              </div>
+              <p className="mb-6 text-gray-300 italic">
+                "Our parents appreciate the transparency OccxLearn provides. They can easily track their children's progress, and our teachers find the platform intuitive and powerful. The customer support has been exceptional as well."
+              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-white">Jennifer Martinez</p>
+                  <p className="text-sm text-gray-400">IT Director, Springfield Elementary</p>
+                </div>
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 text-orange-500" fill="#F97316" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-white">
+      <section id="pricing" className="py-20 bg-black">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">Flexible Pricing Plans</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-4 text-white">Flexible Pricing Plans</h2>
+          <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
             Choose the perfect plan for your school with transparent pricing and no hidden fees
           </p>
           
           <div className="grid md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            {/* Monthly Plan */}
+            {/* Pricing cards */}
             <Card className="card-hover transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border-orange-200 hover:border-orange-500">
               <CardHeader className="text-center pb-2">
                 <CardTitle className="text-xl">Monthly</CardTitle>
@@ -347,7 +426,6 @@ const LandingPage = () => {
               </CardFooter>
             </Card>
 
-            {/* Quarterly Plan */}
             <Card className="card-hover transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border-orange-200 hover:border-orange-500">
               <CardHeader className="text-center pb-2">
                 <CardTitle className="text-xl">Quarterly</CardTitle>
@@ -382,7 +460,6 @@ const LandingPage = () => {
               </CardFooter>
             </Card>
 
-            {/* 6-Month Plan */}
             <Card className="card-hover transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border-orange-200 hover:border-orange-500">
               <CardHeader className="text-center pb-2 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-orange-500 text-white text-xs px-3 py-1 font-medium transform rotate-0 translate-x-4 -translate-y-2">
@@ -420,7 +497,6 @@ const LandingPage = () => {
               </CardFooter>
             </Card>
 
-            {/* Annual Plan */}
             <Card className="card-hover transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border-orange-200 hover:border-orange-500">
               <CardHeader className="text-center pb-2">
                 <CardTitle className="text-xl">Annual</CardTitle>
@@ -459,7 +535,7 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black text-white py-12">
+      <footer className="bg-black text-white py-12 border-t border-white/10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between">
             <div className="mb-8 md:mb-0">
@@ -478,36 +554,5 @@ const LandingPage = () => {
                 <ul className="space-y-2 text-gray-400">
                   <li><a href="#features" className="hover:text-orange-400">Features</a></li>
                   <li><a href="#benefits" className="hover:text-orange-400">Benefits</a></li>
-                  <li><a href="#pricing" className="hover:text-orange-400">Pricing</a></li>
-                </ul>
-              </div>
+                  <li><a href="#testimonials" className="hover:text-orange-400">Test
 
-              <div>
-                <h3 className="font-semibold mb-4 text-orange-500">Company</h3>
-                <ul className="space-y-2 text-gray-400">
-                  <li><a href="#" className="hover:text-orange-400">About Us</a></li>
-                  <li><a href="#" className="hover:text-orange-400">Contact</a></li>
-                  <li><a href="#" className="hover:text-orange-400">Privacy Policy</a></li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-4 text-orange-500">Support</h3>
-                <ul className="space-y-2 text-gray-400">
-                  <li><a href="#" className="hover:text-orange-400">Help Center</a></li>
-                  <li><a href="#" className="hover:text-orange-400">Documentation</a></li>
-                  <li><a href="#" className="hover:text-orange-400">Status</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 OccxLearn. All rights reserved. Developed by OCS</p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-};
-
-export default LandingPage;
