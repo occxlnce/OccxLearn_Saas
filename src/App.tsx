@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,9 +19,17 @@ import ContentManagementPage from "./pages/dashboard/admin/ContentManagement";
 import AttendanceManagementPage from "./pages/dashboard/admin/AttendanceManagement";
 import SettingsPage from "./pages/dashboard/admin/Settings";
 
-// Other Dashboard Pages
+// Teacher Dashboard Pages
 import TeacherDashboard from "./pages/dashboard/teacher/Dashboard";
+
+// Student Dashboard Pages
 import StudentDashboard from "./pages/dashboard/student/Dashboard";
+import LearningMaterials from "./pages/dashboard/student/LearningMaterials";
+import ExamResults from "./pages/dashboard/student/ExamResults";
+import Timetable from "./pages/dashboard/student/Timetable";
+import Attendance from "./pages/dashboard/student/Attendance";
+import Assignments from "./pages/dashboard/student/Assignments";
+import StudentSettings from "./pages/dashboard/student/Settings";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +58,12 @@ const App = () => (
           
           {/* Student Routes */}
           <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route path="/student/materials" element={<LearningMaterials />} />
+          <Route path="/student/results" element={<ExamResults />} />
+          <Route path="/student/timetable" element={<Timetable />} />
+          <Route path="/student/attendance" element={<Attendance />} />
+          <Route path="/student/assignments" element={<Assignments />} />
+          <Route path="/student/settings" element={<StudentSettings />} />
           
           {/* Not Found Route */}
           <Route path="*" element={<NotFound />} />

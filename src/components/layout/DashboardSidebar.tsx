@@ -21,7 +21,10 @@ import {
   BarChart, 
   Users, 
   FileText,
-  Settings
+  Settings,
+  Award,
+  Clock,
+  BookMarked
 } from 'lucide-react';
 
 type NavItem = {
@@ -55,7 +58,8 @@ const teacherNavItems: NavItem[] = [
 const studentNavItems: NavItem[] = [
   { icon: BarChart, label: 'Dashboard', href: '/student/dashboard' },
   { icon: BookOpen, label: 'Learning Materials', href: '/student/materials' },
-  { icon: FileText, label: 'Exam Results', href: '/student/results' },
+  { icon: Award, label: 'Exam Results', href: '/student/results' },
+  { icon: BookMarked, label: 'Assignments', href: '/student/assignments' },
   { icon: Calendar, label: 'Timetable', href: '/student/timetable' },
   { icon: ClipboardCheck, label: 'Attendance', href: '/student/attendance' },
   { icon: Settings, label: 'Settings', href: '/student/settings' },
@@ -89,7 +93,7 @@ const DashboardSidebar = ({ role }: SidebarProps) => {
       <SidebarHeader className="px-6 py-4">
         <Link to="/" className="flex items-center gap-2">
           <GraduationCap className="h-8 w-8 text-primary" />
-          <span className="text-xl font-bold">OccxLear</span>
+          <span className="text-xl font-bold">OccxLearn</span>
         </Link>
         <div className="text-sm text-muted-foreground mt-1">{roleTitles[role]} Portal</div>
       </SidebarHeader>
