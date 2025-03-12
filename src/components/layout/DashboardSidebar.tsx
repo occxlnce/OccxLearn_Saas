@@ -42,6 +42,7 @@ const adminNavItems: NavItem[] = [
   { icon: BarChart, label: 'Dashboard', href: '/admin/dashboard' },
   { icon: Users, label: 'User Management', href: '/admin/users' },
   { icon: BookOpen, label: 'Syllabus Management', href: '/admin/syllabus' },
+  { icon: BookOpen, label: 'Subject Management', href: '/admin/subjects' },
   { icon: FileText, label: 'Content Management', href: '/admin/content' },
   { icon: ClipboardCheck, label: 'Attendance', href: '/admin/attendance' },
   { icon: Settings, label: 'Settings', href: '/admin/settings' },
