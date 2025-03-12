@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SubjectsListProps {
   searchTerm?: string;
@@ -50,6 +51,40 @@ const SubjectsList = ({ searchTerm = '', onEdit, onDelete }: SubjectsListProps) 
     }
   };
 
+  const handleEdit = async (id: string) => {
+    // Log this activity
+    try {
+      await supabase.functions.invoke('log-activity', {
+        body: {
+          userId: (await supabase.auth.getUser()).data.user?.id,
+          action: 'Edited subject',
+          details: { subjectId: id }
+        }
+      });
+    } catch (error) {
+      console.error('Error logging activity:', error);
+    }
+    
+    onEdit(id);
+  };
+
+  const handleDelete = async (id: string) => {
+    // Log this activity
+    try {
+      await supabase.functions.invoke('log-activity', {
+        body: {
+          userId: (await supabase.auth.getUser()).data.user?.id,
+          action: 'Deleted subject',
+          details: { subjectId: id }
+        }
+      });
+    } catch (error) {
+      console.error('Error logging activity:', error);
+    }
+    
+    onDelete(id);
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -84,7 +119,7 @@ const SubjectsList = ({ searchTerm = '', onEdit, onDelete }: SubjectsListProps) 
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => onEdit(subject.id)}>
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleEdit(subject.id)}>
                       <Edit className="h-4 w-4" />
                       <span className="sr-only">Edit</span>
                     </Button>
@@ -92,7 +127,7 @@ const SubjectsList = ({ searchTerm = '', onEdit, onDelete }: SubjectsListProps) 
                       variant="outline" 
                       size="sm" 
                       className="h-8 w-8 p-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
-                      onClick={() => onDelete(subject.id)}
+                      onClick={() => handleDelete(subject.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Delete</span>
