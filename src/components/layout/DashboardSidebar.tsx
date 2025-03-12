@@ -24,7 +24,8 @@ import {
   Settings,
   Award,
   Clock,
-  BookMarked
+  BookMarked,
+  MessageSquare
 } from 'lucide-react';
 
 type NavItem = {
@@ -48,10 +49,11 @@ const adminNavItems: NavItem[] = [
 
 const teacherNavItems: NavItem[] = [
   { icon: BarChart, label: 'Dashboard', href: '/teacher/dashboard' },
-  { icon: BookOpen, label: 'Upload Notes', href: '/teacher/notes' },
-  { icon: FileText, label: 'Upload Marks', href: '/teacher/marks' },
+  { icon: BookOpen, label: 'Upload Notes', href: '/teacher/upload-notes' },
+  { icon: FileText, label: 'Upload Marks', href: '/teacher/upload-marks' },
   { icon: Calendar, label: 'Timetable', href: '/teacher/timetable' },
   { icon: ClipboardCheck, label: 'Attendance', href: '/teacher/attendance' },
+  { icon: MessageSquare, label: 'Messaging', href: '/teacher/messaging' },
   { icon: Settings, label: 'Settings', href: '/teacher/settings' },
 ];
 
