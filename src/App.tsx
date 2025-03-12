@@ -21,6 +21,12 @@ import SettingsPage from "./pages/dashboard/admin/Settings";
 
 // Teacher Dashboard Pages
 import TeacherDashboard from "./pages/dashboard/teacher/Dashboard";
+import UploadNotes from "./pages/dashboard/teacher/UploadNotes";
+import UploadMarks from "./pages/dashboard/teacher/UploadMarks";
+import TeacherTimetable from "./pages/dashboard/teacher/Timetable";
+import TeacherAttendance from "./pages/dashboard/teacher/Attendance";
+import TeacherMessaging from "./pages/dashboard/teacher/Messaging";
+import TeacherSettings from "./pages/dashboard/teacher/Settings";
 
 // Student Dashboard Pages
 import StudentDashboard from "./pages/dashboard/student/Dashboard";
@@ -55,6 +61,12 @@ const App = () => (
           
           {/* Teacher Routes */}
           <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+          <Route path="/teacher/upload-notes" element={<UploadNotes />} />
+          <Route path="/teacher/upload-marks" element={<UploadMarks />} />
+          <Route path="/teacher/timetable" element={<TeacherTimetable />} />
+          <Route path="/teacher/attendance" element={<TeacherAttendance />} />
+          <Route path="/teacher/messaging" element={<TeacherMessaging />} />
+          <Route path="/teacher/settings" element={<TeacherSettings />} />
           
           {/* Student Routes */}
           <Route path="/student/dashboard" element={<StudentDashboard />} />

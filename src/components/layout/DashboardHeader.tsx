@@ -19,10 +19,10 @@ type DashboardHeaderProps = {
 
 const DashboardHeader = ({ pageTitle }: DashboardHeaderProps) => {
   return (
-    <header className="bg-white border-b sticky top-0 z-50">
+    <header className="bg-black border-b border-border sticky top-0 z-50">
       <div className="container h-16 px-4 flex items-center gap-4">
         <SidebarTrigger className="md:hidden" />
-        <h1 className="text-xl font-semibold">{pageTitle}</h1>
+        <h1 className="text-xl font-semibold text-white">{pageTitle}</h1>
         
         <div className="ml-auto flex items-center gap-4">
           <div className="relative hidden md:flex items-center">
@@ -36,7 +36,7 @@ const DashboardHeader = ({ pageTitle }: DashboardHeaderProps) => {
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative text-white">
                 <BellIcon className="h-5 w-5" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
               </Button>
