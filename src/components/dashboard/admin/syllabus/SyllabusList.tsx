@@ -40,10 +40,10 @@ const SyllabusList = ({ searchTerm = '' }: SyllabusListProps) => {
 
   const getStatusColor = (status: Syllabus['status']) => {
     switch (status) {
-      case 'published': return 'bg-green-500 hover:bg-green-600';
-      case 'draft': return 'bg-amber-500 hover:bg-amber-600';
-      case 'archived': return 'bg-gray-500 hover:bg-gray-600';
-      default: return 'bg-gray-500 hover:bg-gray-600';
+      case 'published': return 'success';
+      case 'draft': return 'warning';
+      case 'archived': return 'secondary';
+      default: return 'secondary';
     }
   };
 
@@ -73,7 +73,7 @@ const SyllabusList = ({ searchTerm = '' }: SyllabusListProps) => {
                 <TableCell>{syllabus.grade}</TableCell>
                 <TableCell>{syllabus.lastUpdated}</TableCell>
                 <TableCell>
-                  <Badge className={`${getStatusColor(syllabus.status)} text-white`}>
+                  <Badge variant={getStatusColor(syllabus.status)}>
                     {syllabus.status.charAt(0).toUpperCase() + syllabus.status.slice(1)}
                   </Badge>
                 </TableCell>

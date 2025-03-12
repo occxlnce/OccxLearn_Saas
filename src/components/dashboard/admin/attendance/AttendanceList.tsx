@@ -56,11 +56,11 @@ const AttendanceList = ({ searchTerm = '' }: AttendanceListProps) => {
 
   const getStatusColor = (status: Attendance['status']) => {
     switch (status) {
-      case 'present': return 'bg-green-500 hover:bg-green-600';
-      case 'absent': return 'bg-red-500 hover:bg-red-600';
-      case 'late': return 'bg-amber-500 hover:bg-amber-600';
-      case 'excused': return 'bg-blue-500 hover:bg-blue-600';
-      default: return 'bg-gray-500 hover:bg-gray-600';
+      case 'present': return 'success';
+      case 'absent': return 'danger';
+      case 'late': return 'warning';
+      case 'excused': return 'info';
+      default: return 'secondary';
     }
   };
 
@@ -139,7 +139,7 @@ const AttendanceList = ({ searchTerm = '' }: AttendanceListProps) => {
                   <TableCell>{record.class}</TableCell>
                   <TableCell>{formatDate(record.date)}</TableCell>
                   <TableCell>
-                    <Badge className={`${getStatusColor(record.status)} text-white`}>
+                    <Badge variant={getStatusColor(record.status)}>
                       {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
                     </Badge>
                   </TableCell>

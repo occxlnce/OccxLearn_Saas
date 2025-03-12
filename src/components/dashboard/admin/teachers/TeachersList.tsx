@@ -41,10 +41,10 @@ const TeachersList = ({ searchTerm = '' }: TeachersListProps) => {
 
   const getStatusColor = (status: Teacher['status']) => {
     switch (status) {
-      case 'active': return 'bg-green-500 hover:bg-green-600';
-      case 'inactive': return 'bg-amber-500 hover:bg-amber-600';
-      case 'on leave': return 'bg-blue-500 hover:bg-blue-600';
-      default: return 'bg-gray-500 hover:bg-gray-600';
+      case 'active': return 'success';
+      case 'inactive': return 'warning';
+      case 'on leave': return 'info';
+      default: return 'secondary';
     }
   };
 
@@ -82,7 +82,7 @@ const TeachersList = ({ searchTerm = '' }: TeachersListProps) => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge className={`${getStatusColor(teacher.status)} text-white`}>
+                  <Badge variant={getStatusColor(teacher.status)}>
                     {teacher.status.charAt(0).toUpperCase() + teacher.status.slice(1)}
                   </Badge>
                 </TableCell>

@@ -41,10 +41,10 @@ const StudentsList = ({ searchTerm = '' }: StudentsListProps) => {
 
   const getStatusColor = (status: Student['status']) => {
     switch (status) {
-      case 'active': return 'bg-green-500 hover:bg-green-600';
-      case 'inactive': return 'bg-amber-500 hover:bg-amber-600';
-      case 'suspended': return 'bg-red-500 hover:bg-red-600';
-      default: return 'bg-gray-500 hover:bg-gray-600';
+      case 'active': return 'success';
+      case 'inactive': return 'warning';
+      case 'suspended': return 'danger';
+      default: return 'secondary';
     }
   };
 
@@ -74,7 +74,7 @@ const StudentsList = ({ searchTerm = '' }: StudentsListProps) => {
                 <TableCell>{student.email}</TableCell>
                 <TableCell>{student.class}</TableCell>
                 <TableCell>
-                  <Badge className={`${getStatusColor(student.status)} text-white`}>
+                  <Badge variant={getStatusColor(student.status)}>
                     {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
                   </Badge>
                 </TableCell>
