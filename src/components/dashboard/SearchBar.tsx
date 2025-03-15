@@ -2,13 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface SearchBarProps {
   onSearch: (term: string) => void;
   placeholder?: string;
+  className?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = 'Search...' }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = 'Search...', className }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
   useEffect(() => {
@@ -20,7 +22,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = 'Search..
   }, [searchTerm, onSearch]);
   
   return (
-    <div className="relative w-full max-w-sm">
+    <div className={cn("relative w-full max-w-sm", className)}>
       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
       <Input
         type="search"

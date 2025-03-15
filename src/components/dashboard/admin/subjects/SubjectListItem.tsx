@@ -13,6 +13,9 @@ export interface Subject {
   department?: string;
   status: 'active' | 'inactive';
   description?: string;
+  created_at?: string;
+  updated_at?: string;
+  school_id?: string;
 }
 
 interface SubjectListItemProps {

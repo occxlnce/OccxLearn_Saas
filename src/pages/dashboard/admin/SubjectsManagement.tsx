@@ -60,7 +60,15 @@ const SubjectsManagement = () => {
       
       if (error) throw error;
       
-      setSubjects(data || []);
+      // Transform the data to match the Subject type
+      const typedSubjects: Subject[] = data?.map(item => ({
+        ...item,
+        status: (item.status === 'active' || item.status === 'inactive') 
+          ? item.status as 'active' | 'inactive' 
+          : 'inactive'
+      })) || [];
+      
+      setSubjects(typedSubjects);
     } catch (error) {
       console.error('Error fetching subjects:', error);
       toast.error('Failed to load subjects');
