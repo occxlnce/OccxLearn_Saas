@@ -1,8 +1,7 @@
 
 import React from 'react';
-import { BellIcon, Search } from 'lucide-react';
+import { BellIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,15 +24,6 @@ const DashboardHeader = ({ pageTitle }: DashboardHeaderProps) => {
         <h1 className="text-xl font-semibold text-white">{pageTitle}</h1>
         
         <div className="ml-auto flex items-center gap-4">
-          <div className="relative hidden md:flex items-center">
-            <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-[200px] lg:w-[300px] pl-8"
-            />
-          </div>
-          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative text-white">
