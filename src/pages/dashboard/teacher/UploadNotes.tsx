@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import SearchBar from '@/components/dashboard/SearchBar';
@@ -50,7 +51,7 @@ const UploadNotes = () => {
           description,
           created_at,
           file_url,
-          classes:class_id(name)
+          class_id
         `)
         .eq('created_by', userId)
         .eq('type', 'notes');
@@ -62,7 +63,29 @@ const UploadNotes = () => {
       const { data, error } = await query.order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data || [];
+      
+      // Fetch class names separately since we can't join directly
+      const notesWithClassInfo = await Promise.all((data || []).map(async (note) => {
+        if (note.class_id) {
+          const { data: classData } = await supabase
+            .from('classes')
+            .select('name')
+            .eq('id', note.class_id)
+            .single();
+          
+          return {
+            ...note,
+            classes: classData || { name: 'Unknown class' }
+          };
+        } else {
+          return {
+            ...note,
+            classes: { name: 'No class' }
+          };
+        }
+      }));
+      
+      return notesWithClassInfo || [];
     }
   });
 
