@@ -1,85 +1,32 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import SearchBar from '@/components/dashboard/SearchBar';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Plus } from 'lucide-react';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import SubjectsList from '@/components/dashboard/admin/subjects/SubjectsList';
 import SubjectDialog from '@/components/dashboard/admin/subjects/SubjectDialog';
 import DeleteSubjectDialog from '@/components/dashboard/admin/subjects/DeleteSubjectDialog';
 import ViewSubjectDialog from '@/components/dashboard/admin/subjects/ViewSubjectDialog';
-import { Subject } from '@/components/dashboard/admin/subjects/SubjectListItem';
+import SubjectsFilters from '@/components/dashboard/admin/subjects/SubjectsFilters';
+import { useSubjects } from '@/hooks/useSubjects';
 
 const SubjectsManagement = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState('all');
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    subjects,
+    isLoading,
+    departments,
+    departmentFilter,
+    handleSearch,
+    handleDepartmentFilter,
+    fetchSubjects
+  } = useSubjects();
+  
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const [selectedSubjectName, setSelectedSubjectName] = useState<string>('');
-
-  useEffect(() => {
-    fetchSubjects();
-    
-    // Set up real-time subscription
-    const subscription = supabase
-      .channel('public:subjects')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'subjects' }, 
-        (payload) => {
-          fetchSubjects(); // Refetch subjects when any change occurs
-        }
-      )
-      .subscribe();
-    
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  }, []);
-
-  const fetchSubjects = async () => {
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('subjects')
-        .select('*')
-        .order('name', { ascending: true });
-      
-      if (error) throw error;
-      
-      // Transform the data to match the Subject type
-      const typedSubjects: Subject[] = data?.map(item => ({
-        ...item,
-        status: (item.status === 'active' || item.status === 'inactive') 
-          ? item.status as 'active' | 'inactive' 
-          : 'inactive'
-      })) || [];
-      
-      setSubjects(typedSubjects);
-    } catch (error) {
-      console.error('Error fetching subjects:', error);
-      toast.error('Failed to load subjects');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-  };
 
   const handleEdit = (id: string) => {
     setSelectedSubjectId(id);
@@ -100,50 +47,17 @@ const SubjectsManagement = () => {
     setViewDialogOpen(true);
   };
 
-  const filteredSubjects = subjects
-    .filter(subject => 
-      (subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       subject.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       (subject.description && subject.description.toLowerCase().includes(searchTerm.toLowerCase())))
-    )
-    .filter(subject => 
-      departmentFilter === 'all' || 
-      (subject.department && subject.department.toLowerCase() === departmentFilter.toLowerCase())
-    );
-
-  // Extract unique departments for the filter
-  const departments = ['all', ...new Set(subjects
-    .filter(subject => subject.department)
-    .map(subject => subject.department as string)
-  )];
-
   return (
     <DashboardLayout role="admin" pageTitle="Subjects Management">
       <div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <h1 className="text-2xl font-bold">Subjects Management</h1>
-          <div className="flex w-full md:w-auto flex-col md:flex-row gap-2">
-            <SearchBar 
-              onSearch={handleSearch} 
-              placeholder="Search subjects..." 
-              className="w-full md:w-64"
-            />
-            <Select 
-              value={departmentFilter} 
-              onValueChange={setDepartmentFilter}
-            >
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="Filter by department" />
-              </SelectTrigger>
-              <SelectContent>
-                {departments.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept === 'all' ? 'All Departments' : dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <SubjectsFilters 
+            onSearch={handleSearch}
+            onDepartmentChange={handleDepartmentFilter}
+            departments={departments}
+            departmentFilter={departmentFilter}
+          />
         </div>
 
         <div className="mb-6">
@@ -154,7 +68,7 @@ const SubjectsManagement = () => {
         </div>
 
         <SubjectsList 
-          subjects={filteredSubjects} 
+          subjects={subjects} 
           onEdit={handleEdit} 
           onDelete={handleDelete}
           onView={handleView}
