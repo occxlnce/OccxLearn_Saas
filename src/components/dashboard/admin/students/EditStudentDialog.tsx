@@ -39,21 +39,27 @@ const EditStudentDialog: React.FC<EditStudentDialogProps> = ({
     queryFn: async () => {
       if (!studentId) return null;
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(`
-          id, 
-          email, 
-          first_name, 
-          last_name,
-          status,
-          class_id
-        `)
-        .eq('id', studentId)
-        .single();
-      
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select(`
+            id, 
+            email, 
+            first_name, 
+            last_name,
+            class_id
+          `)
+          .eq('id', studentId)
+          .single();
+        
+        if (error) throw error;
+        
+        // Default to 'active' status since it's not in the database yet
+        return { ...data, status: 'active' as const };
+      } catch (error) {
+        console.error('Error fetching student:', error);
+        return null;
+      }
     },
     enabled: !!studentId && open
   });
@@ -78,7 +84,7 @@ const EditStudentDialog: React.FC<EditStudentDialogProps> = ({
       setValue('lastName', student.last_name || '');
       setValue('email', student.email || '');
       setValue('classId', student.class_id || '');
-      setValue('status', (student.status as 'active' | 'inactive' | 'suspended') || 'active');
+      setValue('status', student.status || 'active');
     }
   }, [student, setValue]);
 
@@ -93,8 +99,7 @@ const EditStudentDialog: React.FC<EditStudentDialogProps> = ({
           first_name: data.firstName,
           last_name: data.lastName,
           email: data.email,
-          class_id: data.classId || null,
-          status: data.status
+          class_id: data.classId || null
         })
         .eq('id', studentId);
 
@@ -115,7 +120,8 @@ const EditStudentDialog: React.FC<EditStudentDialogProps> = ({
           action: 'update_student',
           details: {
             studentId,
-            studentName: `${data.firstName} ${data.lastName}`
+            studentName: `${data.firstName} ${data.lastName}`,
+            status: data.status
           }
         }
       });

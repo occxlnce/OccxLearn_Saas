@@ -1,37 +1,16 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { SearchBar } from '@/components/dashboard/SearchBar';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import ContentList from '@/components/dashboard/admin/content/ContentList';
+import SearchBar from '@/components/dashboard/SearchBar';
 
-const ContentManagementPage = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    console.log(`Searching for content: ${term}`);
-  };
-
+const ContentManagement = () => {
   return (
     <DashboardLayout role="admin" pageTitle="Content Management">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div className="w-full md:w-1/2">
-          <SearchBar 
-            onSearch={handleSearch} 
-            placeholder="Search content by title, subject, or type..." 
-          />
-        </div>
-        <Button className="bg-orange-500 hover:bg-orange-600">
-          <Plus className="w-4 h-4 mr-2" />
-          Upload New Content
-        </Button>
+      <div>
+        <h1>Content Management</h1>
+        <SearchBar onSearch={() => {}} placeholder="Search content..." />
       </div>
-      
-      <ContentList searchTerm={searchTerm} />
     </DashboardLayout>
   );
 };
 
-export default ContentManagementPage;
+export default ContentManagement;

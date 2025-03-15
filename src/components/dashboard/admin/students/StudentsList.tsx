@@ -41,35 +41,40 @@ const StudentsList = ({ searchTerm = '' }: StudentsListProps) => {
   const { data: students, isLoading, error } = useQuery({
     queryKey: ['students', searchTerm],
     queryFn: async () => {
-      const query = supabase
-        .from('profiles')
-        .select(`
-          id,
-          first_name,
-          last_name,
-          email,
-          class_id,
-          status,
-          classes:class_id(name)
-        `)
-        .eq('role', 'student');
+      try {
+        const query = supabase
+          .from('profiles')
+          .select(`
+            id,
+            first_name,
+            last_name,
+            email,
+            class_id,
+            classes:class_id(name)
+          `)
+          .eq('role', 'student');
+          
+        // Apply search filter if provided
+        if (searchTerm) {
+          query.or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
+        }
+          
+        const { data, error } = await query;
         
-      // Apply search filter if provided
-      if (searchTerm) {
-        query.or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
+        if (error) throw error;
+        
+        // Since status is not in the database, we'll default it to 'active'
+        return data.map(student => ({
+          id: student.id,
+          name: `${student.first_name} ${student.last_name}`,
+          email: student.email,
+          class: student.classes?.name || 'Not assigned',
+          status: 'active' as const // Default to active since we don't have this in the database yet
+        }));
+      } catch (error) {
+        console.error('Error fetching students:', error);
+        return [];
       }
-        
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      
-      return data.map(student => ({
-        id: student.id,
-        name: `${student.first_name} ${student.last_name}`,
-        email: student.email,
-        class: student.classes?.name || 'Not assigned',
-        status: (student.status || 'active') as 'active' | 'inactive' | 'suspended'
-      })) as Student[];
     }
   });
 

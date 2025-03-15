@@ -1,98 +1,150 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import SearchBar from '@/components/dashboard/SearchBar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { SearchBar } from '@/components/dashboard/SearchBar';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UploadCloud, FileText, Video, Image, File, Search, MoreHorizontal, Trash, Edit, Eye } from 'lucide-react';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger,
-  DropdownMenuSeparator 
-} from '@/components/ui/dropdown-menu';
-
-// Sample materials data
-const materials = [
-  {
-    id: '1',
-    title: 'Introduction to Algebra',
-    subject: 'Mathematics',
-    type: 'document' as const,
-    uploadedBy: 'You',
-    date: '2023-10-01',
-    fileSize: '2.3 MB',
-    fileUrl: '#'
-  },
-  {
-    id: '2',
-    title: 'Physics Forces Lecture',
-    subject: 'Physics',
-    type: 'video' as const,
-    uploadedBy: 'You',
-    date: '2023-10-05',
-    fileSize: '45 MB',
-    fileUrl: '#'
-  },
-  {
-    id: '3',
-    title: 'Database Diagrams',
-    subject: 'Computer Science',
-    type: 'image' as const,
-    uploadedBy: 'You',
-    date: '2023-10-03',
-    fileSize: '1.5 MB',
-    fileUrl: '#'
-  },
-  {
-    id: '4',
-    title: 'Advanced Calculus Examples',
-    subject: 'Mathematics',
-    type: 'document' as const,
-    uploadedBy: 'You',
-    date: '2023-09-28',
-    fileSize: '3.1 MB',
-    fileUrl: '#'
-  },
-  {
-    id: '5',
-    title: 'Programming Concepts',
-    subject: 'Computer Science',
-    type: 'document' as const,
-    uploadedBy: 'You',
-    date: '2023-10-07',
-    fileSize: '1.8 MB',
-    fileUrl: '#'
-  }
-];
-
-// Icon mapping by file type
-const getFileIcon = (type: string) => {
-  switch(type) {
-    case 'document':
-      return <FileText className="h-5 w-5 text-blue-500" />;
-    case 'video':
-      return <Video className="h-5 w-5 text-purple-500" />;
-    case 'image':
-      return <Image className="h-5 w-5 text-green-500" />;
-    default:
-      return <File className="h-5 w-5 text-gray-500" />;
-  }
-};
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { Upload } from 'lucide-react';
 
 const UploadNotes = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const subjects = ['All Subjects', 'Mathematics', 'Physics', 'Computer Science', 'Biology', 'Chemistry'];
-  
-  const filteredMaterials = materials.filter(material => 
-    material.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    material.subject.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [selectedClass, setSelectedClass] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Fetch classes for dropdown
+  const { data: classes } = useQuery({
+    queryKey: ['teacher-classes'],
+    queryFn: async () => {
+      const userId = localStorage.getItem('userId');
+      
+      const { data, error } = await supabase
+        .from('classes')
+        .select('id, name')
+        .eq('teacher_id', userId);
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
+  // Fetch existing notes
+  const { data: notes, isLoading, refetch } = useQuery({
+    queryKey: ['teacher-notes', searchTerm],
+    queryFn: async () => {
+      const userId = localStorage.getItem('userId');
+      
+      let query = supabase
+        .from('contents')
+        .select(`
+          id,
+          title,
+          description,
+          created_at,
+          file_url,
+          classes:class_id(name)
+        `)
+        .eq('created_by', userId)
+        .eq('type', 'notes');
+      
+      if (searchTerm) {
+        query = query.ilike('title', `%${searchTerm}%`);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!title) {
+      toast.error('Please enter a title');
+      return;
+    }
+    
+    if (!selectedClass) {
+      toast.error('Please select a class');
+      return;
+    }
+    
+    if (!file) {
+      toast.error('Please select a file to upload');
+      return;
+    }
+    
+    setIsUploading(true);
+    
+    try {
+      const userId = localStorage.getItem('userId');
+      const schoolId = localStorage.getItem('schoolId');
+      
+      // Upload file to storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `notes/${userId}/${fileName}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('content-files')
+        .upload(filePath, file);
+      
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('content-files')
+        .getPublicUrl(filePath);
+      
+      // Save note metadata to database
+      const { error: dbError } = await supabase
+        .from('contents')
+        .insert({
+          title,
+          description,
+          type: 'notes',
+          file_url: urlData.publicUrl,
+          class_id: selectedClass,
+          school_id: schoolId,
+          created_by: userId
+        });
+      
+      if (dbError) throw dbError;
+      
+      toast.success('Notes uploaded successfully');
+      
+      // Reset form
+      setTitle('');
+      setDescription('');
+      setSelectedClass('');
+      setFile(null);
+      
+      // Refresh notes list
+      refetch();
+      
+    } catch (error) {
+      console.error('Error uploading notes:', error);
+      toast.error('Failed to upload notes. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
@@ -100,104 +152,151 @@ const UploadNotes = () => {
 
   return (
     <DashboardLayout role="teacher" pageTitle="Upload Notes">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <CardTitle>Learning Materials</CardTitle>
-              <CardDescription>Upload and manage course materials for your students</CardDescription>
-            </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-              <div className="relative w-full md:w-64">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search materials..."
-                  className="pl-8"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <Button className="bg-orange-500 hover:bg-orange-600">
-                <UploadCloud className="w-4 h-4 mr-2" />
-                Upload New
-              </Button>
-            </div>
+      <div className="flex flex-col h-full">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Upload Notes</h1>
+          <SearchBar onSearch={handleSearch} placeholder="Search notes..." />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload New Notes</CardTitle>
+                <CardDescription>
+                  Upload notes for your students to access
+                </CardDescription>
+              </CardHeader>
+              <form onSubmit={handleUpload}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Title</Label>
+                    <Input 
+                      id="title" 
+                      placeholder="Enter title" 
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description (Optional)</Label>
+                    <Textarea 
+                      id="description" 
+                      placeholder="Enter description" 
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="class">Class</Label>
+                    <Select 
+                      value={selectedClass} 
+                      onValueChange={setSelectedClass}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a class" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {classes?.map((cls) => (
+                          <SelectItem key={cls.id} value={cls.id}>
+                            {cls.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="file">File</Label>
+                    <Input 
+                      id="file" 
+                      type="file" 
+                      accept=".pdf,.doc,.docx,.ppt,.pptx" 
+                      onChange={handleFileChange}
+                    />
+                    <p className="text-xs text-gray-500">
+                      Supported formats: PDF, DOC, DOCX, PPT, PPTX
+                    </p>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    type="submit" 
+                    className="w-full"
+                    disabled={isUploading}
+                  >
+                    {isUploading ? (
+                      'Uploading...'
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Notes
+                      </>
+                    )}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
           </div>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="All Subjects">
-            <TabsList className="mb-4 w-full overflow-x-auto flex flex-nowrap">
-              {subjects.map(subject => (
-                <TabsTrigger key={subject} value={subject} className="whitespace-nowrap">
-                  {subject}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            
-            {subjects.map(subject => (
-              <TabsContent key={subject} value={subject}>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Subject</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Upload Date</TableHead>
-                      <TableHead>Size</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredMaterials
-                      .filter(material => subject === 'All Subjects' || material.subject === subject)
-                      .map(material => (
-                        <TableRow key={material.id}>
-                          <TableCell className="flex items-center gap-2">
-                            {getFileIcon(material.type)}
-                            <span>{material.title}</span>
-                          </TableCell>
-                          <TableCell>{material.subject}</TableCell>
-                          <TableCell>
-                            <Badge variant="secondary">
-                              {material.type.charAt(0).toUpperCase() + material.type.slice(1)}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{new Date(material.date).toLocaleDateString()}</TableCell>
-                          <TableCell>{material.fileSize}</TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Open menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem className="cursor-pointer">
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  View
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer">
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="cursor-pointer text-red-600">
-                                  <Trash className="h-4 w-4 mr-2" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </CardContent>
-      </Card>
+          
+          <div className="md:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Notes</CardTitle>
+                <CardDescription>
+                  View and manage your uploaded notes
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <p className="text-center py-8">Loading notes...</p>
+                ) : notes && notes.length > 0 ? (
+                  <div className="space-y-4">
+                    {notes.map((note) => (
+                      <div 
+                        key={note.id} 
+                        className="border rounded-lg p-4 flex justify-between items-start"
+                      >
+                        <div>
+                          <h3 className="font-medium">{note.title}</h3>
+                          {note.description && (
+                            <p className="text-sm text-gray-500 mt-1">{note.description}</p>
+                          )}
+                          <div className="flex items-center mt-2 space-x-4">
+                            <span className="text-xs bg-secondary px-2 py-1 rounded">
+                              {note.classes?.name || 'No class'}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {new Date(note.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => window.open(note.file_url, '_blank')}
+                          >
+                            View
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center py-8 text-gray-500">
+                    {searchTerm 
+                      ? 'No notes found matching your search.' 
+                      : 'You haven\'t uploaded any notes yet.'}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
     </DashboardLayout>
   );
 };

@@ -18,23 +18,29 @@ const ViewStudentDialog: React.FC<ViewStudentDialogProps> = ({ open, onOpenChang
     queryFn: async () => {
       if (!studentId) return null;
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(`
-          id, 
-          email, 
-          first_name, 
-          last_name, 
-          role, 
-          status,
-          class_id,
-          classes:class_id(name)
-        `)
-        .eq('id', studentId)
-        .single();
-      
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select(`
+            id, 
+            email, 
+            first_name, 
+            last_name, 
+            role, 
+            class_id,
+            classes:class_id(name)
+          `)
+          .eq('id', studentId)
+          .single();
+        
+        if (error) throw error;
+        
+        // Add status property since it's not in the database yet
+        return { ...data, status: 'active' };
+      } catch (error) {
+        console.error('Error fetching student:', error);
+        return null;
+      }
     },
     enabled: !!studentId && open
   });

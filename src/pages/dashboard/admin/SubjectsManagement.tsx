@@ -1,161 +1,246 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { SearchBar } from '@/components/dashboard/SearchBar';
+import SearchBar from '@/components/dashboard/SearchBar';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import SubjectsList from '@/components/dashboard/admin/subjects/SubjectsList';
-import SubjectForm, { SubjectFormData } from '@/components/dashboard/admin/subjects/SubjectForm';
-import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Edit, Trash2, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 
-const SubjectsManagementPage = () => {
+interface Subject {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface SubjectsListProps {
+  subjects: Subject[];
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+}
+
+const SubjectsList: React.FC<SubjectsListProps> = ({ subjects, onEdit, onDelete }) => {
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {subjects.map((subject) => (
+            <TableRow key={subject.id}>
+              <TableCell className="font-medium">{subject.name}</TableCell>
+              <TableCell>{subject.description}</TableCell>
+              <TableCell className="text-right">
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => onEdit(subject.id)}>
+                    <Edit className="h-4 w-4" />
+                    <span className="sr-only">Edit</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
+                    onClick={() => onDelete(subject.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span className="sr-only">Delete</span>
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
+
+const SubjectsManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
-  const [editingSubject, setEditingSubject] = useState<SubjectFormData | undefined>(undefined);
-  
+  const [subjects, setSubjects] = useState<Subject[]>([
+    { id: '1', name: 'Mathematics', description: 'The study of numbers, quantity, space, and change.' },
+    { id: '2', name: 'Science', description: 'The pursuit and application of knowledge and understanding of the natural and social world.' },
+    { id: '3', name: 'History', description: 'The study of past events, particularly in human affairs.' },
+  ]);
+  const [isAdding, setIsAdding] = useState(false);
+  const [newSubjectName, setNewSubjectName] = useState('');
+  const [newSubjectDescription, setNewSubjectDescription] = useState('');
+  const [editingSubjectId, setEditingSubjectId] = useState<string | null>(null);
+  const [editedSubjectName, setEditedSubjectName] = useState('');
+  const [editedSubjectDescription, setEditedSubjectDescription] = useState('');
+
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    console.log(`Searching for subject: ${term}`);
   };
 
-  const handleAddSubject = (data: SubjectFormData) => {
-    // In a real app, this would be a call to Supabase
-    console.log('Adding subject:', data);
-    toast.success(`Subject "${data.name}" added successfully`);
-    setShowAddDialog(false);
+  const handleAddSubject = () => {
+    setIsAdding(true);
+  };
+
+  const handleSaveNewSubject = () => {
+    if (newSubjectName.trim() === '') {
+      toast.error('Subject name cannot be empty.');
+      return;
+    }
+
+    const newSubject: Subject = {
+      id: String(Date.now()),
+      name: newSubjectName,
+      description: newSubjectDescription,
+    };
+
+    setSubjects([...subjects, newSubject]);
+    setIsAdding(false);
+    setNewSubjectName('');
+    setNewSubjectDescription('');
+    toast.success('Subject added successfully.');
+  };
+
+  const handleCancelNewSubject = () => {
+    setIsAdding(false);
+    setNewSubjectName('');
+    setNewSubjectDescription('');
   };
 
   const handleEditSubject = (id: string) => {
-    // In a real app, you would fetch the subject data from Supabase
-    // For now, we'll use dummy data
-    const dummySubject = {
-      id,
-      name: 'Mathematics',
-      code: 'MATH101',
-      gradeLevel: 'Grade 10',
-      department: 'Science',
-      status: 'active' as const
-    };
-    
-    setEditingSubject(dummySubject);
-    setShowEditDialog(true);
+    const subjectToEdit = subjects.find((subject) => subject.id === id);
+    if (subjectToEdit) {
+      setEditingSubjectId(id);
+      setEditedSubjectName(subjectToEdit.name);
+      setEditedSubjectDescription(subjectToEdit.description);
+    }
   };
 
-  const handleUpdateSubject = (data: SubjectFormData) => {
-    // In a real app, this would be a call to Supabase
-    console.log('Updating subject:', data);
-    toast.success(`Subject "${data.name}" updated successfully`);
-    setShowEditDialog(false);
-    setEditingSubject(undefined);
+  const handleUpdateSubject = () => {
+    if (editedSubjectName.trim() === '') {
+      toast.error('Subject name cannot be empty.');
+      return;
+    }
+
+    const updatedSubjects = subjects.map((subject) =>
+      subject.id === editingSubjectId
+        ? { ...subject, name: editedSubjectName, description: editedSubjectDescription }
+        : subject
+    );
+
+    setSubjects(updatedSubjects);
+    setEditingSubjectId(null);
+    setEditedSubjectName('');
+    setEditedSubjectDescription('');
+    toast.success('Subject updated successfully.');
   };
 
-  const handleDeletePrompt = (id: string) => {
-    setSelectedSubjectId(id);
-    setShowDeleteDialog(true);
+  const handleCancelEdit = () => {
+    setEditingSubjectId(null);
+    setEditedSubjectName('');
+    setEditedSubjectDescription('');
   };
 
-  const handleDeleteSubject = () => {
-    // In a real app, this would be a call to Supabase
-    console.log('Deleting subject with ID:', selectedSubjectId);
-    toast.success('Subject deleted successfully');
-    setShowDeleteDialog(false);
-    setSelectedSubjectId(null);
+  const handleDeleteSubject = (id: string) => {
+    setSubjects(subjects.filter((subject) => subject.id !== id));
+    toast.success('Subject deleted successfully.');
   };
+
+  const filteredSubjects = subjects.filter(subject =>
+    subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    subject.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <DashboardLayout role="admin" pageTitle="Subject Management">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div className="w-full md:w-1/2">
-          <SearchBar 
-            onSearch={handleSearch} 
-            placeholder="Search subjects by name, code or department..." 
-          />
+    <DashboardLayout role="admin" pageTitle="Subjects Management">
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Subjects Management</h1>
+          <SearchBar onSearch={handleSearch} placeholder="Search subjects..." />
         </div>
-        <Button 
-          className="bg-orange-500 hover:bg-orange-600"
-          onClick={() => setShowAddDialog(true)}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add New Subject
-        </Button>
-      </div>
-      
-      <SubjectsList 
-        searchTerm={searchTerm} 
-        onEdit={handleEditSubject}
-        onDelete={handleDeletePrompt}
-      />
 
-      {/* Add Subject Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Add New Subject</DialogTitle>
-            <DialogDescription>
-              Fill in the form below to add a new subject to the system.
-            </DialogDescription>
-          </DialogHeader>
-          <SubjectForm 
-            onSubmit={handleAddSubject}
-            onCancel={() => setShowAddDialog(false)}
-          />
-        </DialogContent>
-      </Dialog>
+        <div className="mb-4">
+          <Button onClick={handleAddSubject} className="bg-green-500 hover:bg-green-600">
+            <Plus className="w-4 h-4 mr-2" />
+            Add New Subject
+          </Button>
+        </div>
 
-      {/* Edit Subject Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Edit Subject</DialogTitle>
-            <DialogDescription>
-              Update the subject details below.
-            </DialogDescription>
-          </DialogHeader>
-          <SubjectForm 
-            initialData={editingSubject}
-            onSubmit={handleUpdateSubject}
-            onCancel={() => {
-              setShowEditDialog(false);
-              setEditingSubject(undefined);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="sm:max-w-[450px]">
-          <DialogHeader>
-            <DialogTitle>Delete Subject</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this subject? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end gap-3 mt-4">
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-              Cancel
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleDeleteSubject}
-            >
-              Delete Subject
-            </Button>
+        {isAdding && (
+          <div className="mb-4 p-4 border rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Add New Subject</h3>
+            <div className="mb-2">
+              <label htmlFor="newSubjectName" className="block text-sm font-medium text-gray-700">Name</label>
+              <Input
+                type="text"
+                id="newSubjectName"
+                className="mt-1 block w-full"
+                value={newSubjectName}
+                onChange={(e) => setNewSubjectName(e.target.value)}
+              />
+            </div>
+            <div className="mb-2">
+              <label htmlFor="newSubjectDescription" className="block text-sm font-medium text-gray-700">Description</label>
+              <Input
+                type="text"
+                id="newSubjectDescription"
+                className="mt-1 block w-full"
+                value={newSubjectDescription}
+                onChange={(e) => setNewSubjectDescription(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={handleCancelNewSubject}>Cancel</Button>
+              <Button onClick={handleSaveNewSubject}>Save</Button>
+            </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        )}
+
+        {editingSubjectId && (
+          <div className="mb-4 p-4 border rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Edit Subject</h3>
+            <div className="mb-2">
+              <label htmlFor="editedSubjectName" className="block text-sm font-medium text-gray-700">Name</label>
+              <Input
+                type="text"
+                id="editedSubjectName"
+                className="mt-1 block w-full"
+                value={editedSubjectName}
+                onChange={(e) => setEditedSubjectName(e.target.value)}
+              />
+            </div>
+            <div className="mb-2">
+              <label htmlFor="editedSubjectDescription" className="block text-sm font-medium text-gray-700">Description</label>
+              <Input
+                type="text"
+                id="editedSubjectDescription"
+                className="mt-1 block w-full"
+                value={editedSubjectDescription}
+                onChange={(e) => setEditedSubjectDescription(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+              <Button onClick={handleUpdateSubject}>Update</Button>
+            </div>
+          </div>
+        )}
+
+        <SubjectsList
+          subjects={filteredSubjects}
+          onEdit={handleEditSubject}
+          onDelete={handleDeleteSubject}
+        />
+      </div>
     </DashboardLayout>
   );
 };
 
-export default SubjectsManagementPage;
+export default SubjectsManagement;
