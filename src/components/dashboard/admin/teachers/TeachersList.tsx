@@ -11,12 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2, Eye, UserPlus } from 'lucide-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import AddTeacherDialog from './AddTeacherDialog';
-import ViewTeacherDialog from './ViewTeacherDialog';
-import EditTeacherDialog from './EditTeacherDialog';
 
 interface TeachersListProps {
   searchTerm?: string;
@@ -27,140 +22,86 @@ interface Teacher {
   name: string;
   email: string;
   subjects: string[];
-  status: 'active' | 'inactive' | 'on leave';
+  status: "active" | "inactive" | "on leave";
 }
 
+// Mock data for teachers
+const mockTeachers: Teacher[] = [
+  {
+    id: '1',
+    name: 'John Thompson',
+    email: 'john.thompson@example.com',
+    subjects: ['Mathematics', 'Physics'],
+    status: 'active'
+  },
+  {
+    id: '2',
+    name: 'Maria Rodriguez',
+    email: 'maria.rodriguez@example.com',
+    subjects: ['Biology', 'Chemistry'],
+    status: 'active'
+  },
+  {
+    id: '3',
+    name: 'Raj Patel',
+    email: 'raj.patel@example.com',
+    subjects: ['English Literature', 'History'],
+    status: 'inactive'
+  },
+  {
+    id: '4',
+    name: 'Li Chen',
+    email: 'li.chen@example.com',
+    subjects: ['Art', 'Music'],
+    status: 'on leave'
+  },
+  {
+    id: '5',
+    name: 'Amir Gupta',
+    email: 'amir.gupta@example.com',
+    subjects: ['Computer Science', 'Mathematics'],
+    status: 'active'
+  }
+];
+
 const TeachersList = ({ searchTerm = '' }: TeachersListProps) => {
-  const queryClient = useQueryClient();
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
-  
-  // Fetch teachers data from Supabase
-  const { data: teachers, isLoading, error } = useQuery({
-    queryKey: ['teachers', searchTerm],
-    queryFn: async () => {
-      const query = supabase
-        .from('profiles')
-        .select(`
-          id,
-          first_name,
-          last_name,
-          email
-        `)
-        .eq('role', 'teacher');
-        
-      // Apply search filter if provided
-      if (searchTerm) {
-        query.or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
-      }
-        
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      
-      // For each teacher, we need to fetch their classes/subjects
-      const enrichedTeachers = await Promise.all(
-        data.map(async (teacher) => {
-          const { data: classesData } = await supabase
-            .from('classes')
-            .select('name')
-            .eq('teacher_id', teacher.id);
-            
-          return {
-            id: teacher.id,
-            name: `${teacher.first_name} ${teacher.last_name}`,
-            email: teacher.email,
-            subjects: classesData?.map(c => c.name) || ['Computer Science'],
-            status: 'active' as 'active' | 'inactive' | 'on leave' // Default status
-          };
-        })
-      );
-      
-      return enrichedTeachers;
-    }
-  });
+  const [teachers, setTeachers] = useState<Teacher[]>(mockTeachers);
 
-  // Subscribe to realtime changes when component mounts
-  React.useEffect(() => {
-    const channel = supabase
-      .channel('profiles-changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'profiles', filter: 'role=eq.teacher' }, 
-        () => {
-          // Invalidate the query to refresh the data
-          queryClient.invalidateQueries({ queryKey: ['teachers'] });
-        }
-      )
-      .subscribe();
-      
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
+  // Filter teachers based on search term
+  const filteredTeachers = teachers.filter(
+    (teacher) =>
+      teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      teacher.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      teacher.subjects.some((subject) => subject.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
-  const handleDeleteTeacher = async (teacherId: string) => {
+  const handleDeleteTeacher = (teacherId: string) => {
     if (confirm('Are you sure you want to delete this teacher?')) {
-      try {
-        // We don't actually delete the user, just update their status to 'inactive'
-        const { error } = await supabase.functions.invoke('update-user-status', {
-          body: { userId: teacherId, status: 'inactive' }
-        });
-        
-        if (error) throw error;
-        
-        // Log the activity
-        await supabase.functions.invoke('log-activity', {
-          body: {
-            action: 'delete_teacher',
-            details: {
-              teacherId
-            }
-          }
-        });
-        
-        toast.success('Teacher deleted successfully');
-        
-        // Refresh the teachers list
-        queryClient.invalidateQueries({ queryKey: ['teachers'] });
-      } catch (error) {
-        console.error('Error deleting teacher:', error);
-        toast.error('Failed to delete teacher');
-      }
+      setTeachers((prev) => prev.filter((teacher) => teacher.id !== teacherId));
+      toast.success('Teacher deleted successfully');
     }
   };
 
   const handleViewTeacher = (teacherId: string) => {
-    setSelectedTeacherId(teacherId);
-    setViewDialogOpen(true);
+    toast('View teacher with ID: ' + teacherId);
   };
 
   const handleEditTeacher = (teacherId: string) => {
-    setSelectedTeacherId(teacherId);
-    setEditDialogOpen(true);
+    toast('Edit teacher with ID: ' + teacherId);
   };
 
   const handleAddTeacher = () => {
-    setAddDialogOpen(true);
+    toast('Add new teacher clicked');
   };
 
   const getStatusColor = (status: Teacher['status']) => {
     switch (status) {
       case 'active': return 'success';
       case 'inactive': return 'warning';
-      case 'on leave': return 'info';
-      default: return 'secondary';
+      case 'on leave': return 'secondary';
+      default: return 'default';
     }
   };
-
-  if (error) {
-    return (
-      <div className="p-8 text-center">
-        <p className="text-red-500">Error loading teachers: {error.message}</p>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -183,26 +124,12 @@ const TeachersList = ({ searchTerm = '' }: TeachersListProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
-                  Loading teachers...
-                </TableCell>
-              </TableRow>
-            ) : teachers && teachers.length > 0 ? (
-              teachers.map((teacher) => (
+            {filteredTeachers.length > 0 ? (
+              filteredTeachers.map((teacher) => (
                 <TableRow key={teacher.id}>
                   <TableCell className="font-medium">{teacher.name}</TableCell>
                   <TableCell>{teacher.email}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {teacher.subjects.map((subject, index) => (
-                        <Badge key={index} variant="outline" className="bg-black/5">
-                          {subject}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
+                  <TableCell>{teacher.subjects.join(', ')}</TableCell>
                   <TableCell>
                     <Badge variant={getStatusColor(teacher.status)}>
                       {teacher.status.charAt(0).toUpperCase() + teacher.status.slice(1)}
@@ -241,26 +168,6 @@ const TeachersList = ({ searchTerm = '' }: TeachersListProps) => {
           </TableBody>
         </Table>
       </div>
-      
-      {/* Dialogs */}
-      <AddTeacherDialog 
-        open={addDialogOpen} 
-        onOpenChange={setAddDialogOpen}
-        onTeacherAdded={() => queryClient.invalidateQueries({ queryKey: ['teachers'] })}
-      />
-      
-      <ViewTeacherDialog
-        open={viewDialogOpen}
-        onOpenChange={setViewDialogOpen}
-        teacherId={selectedTeacherId}
-      />
-      
-      <EditTeacherDialog
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-        teacherId={selectedTeacherId}
-        onTeacherUpdated={() => queryClient.invalidateQueries({ queryKey: ['teachers'] })}
-      />
     </>
   );
 };

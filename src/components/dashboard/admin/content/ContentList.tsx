@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -9,8 +8,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Edit, Trash2, Eye, Download, FileText, Video, Image, File } from 'lucide-react';
+import { Edit, Trash2, Eye, FileDown, Upload } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ContentListProps {
   searchTerm?: string;
@@ -20,95 +19,181 @@ interface Content {
   id: string;
   title: string;
   subject: string;
-  type: 'document' | 'video' | 'image' | 'other';
+  type: "video" | "image" | "document" | "other";
   uploadedBy: string;
   uploadDate: string;
   fileSize: string;
 }
 
 const ContentList = ({ searchTerm = '' }: ContentListProps) => {
-  // In a real app, this data would come from Supabase
-  const contentList: Content[] = [
-    { id: '1', title: 'Mathematics Formulas Sheet', subject: 'Mathematics', type: 'document', uploadedBy: 'Dr. Jessica Miller', uploadDate: '2 days ago', fileSize: '1.2 MB' },
-    { id: '2', title: 'English Literature Analysis', subject: 'English', type: 'document', uploadedBy: 'Prof. Robert Johnson', uploadDate: '1 week ago', fileSize: '3.5 MB' },
-    { id: '3', title: 'Physics Lab Demonstration', subject: 'Physics', type: 'video', uploadedBy: 'Ms. Amanda Lee', uploadDate: '3 days ago', fileSize: '15.7 MB' },
-    { id: '4', title: 'Historical Maps Collection', subject: 'History', type: 'image', uploadedBy: 'Mr. Kevin Clark', uploadDate: '1 month ago', fileSize: '5.3 MB' },
-    { id: '5', title: 'Programming Tutorial', subject: 'Computer Science', type: 'document', uploadedBy: 'Dr. Thomas Brown', uploadDate: '2 weeks ago', fileSize: '2.8 MB' },
-  ].filter(content => 
-    searchTerm === '' || 
-    content.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    content.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    content.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    content.uploadedBy.toLowerCase().includes(searchTerm.toLowerCase())
+  const [content, setContent] = useState<Content[]>([
+    {
+      id: '1',
+      title: 'Introduction to Algebra',
+      subject: 'Mathematics',
+      type: 'document',
+      uploadedBy: 'Mr. Thompson',
+      uploadDate: '2023-08-15',
+      fileSize: '1.2 MB'
+    },
+    {
+      id: '2',
+      title: 'Cell Biology Basics',
+      subject: 'Biology',
+      type: 'video',
+      uploadedBy: 'Ms. Rodriguez',
+      uploadDate: '2023-08-22',
+      fileSize: '45 MB'
+    },
+    {
+      id: '3',
+      title: 'World War II Overview',
+      subject: 'History',
+      type: 'document',
+      uploadedBy: 'Mr. Patel',
+      uploadDate: '2023-09-01',
+      fileSize: '2.5 MB'
+    },
+    {
+      id: '4',
+      title: 'Photosynthesis Diagram',
+      subject: 'Biology',
+      type: 'image',
+      uploadedBy: 'Ms. Chen',
+      uploadDate: '2023-09-05',
+      fileSize: '0.8 MB'
+    },
+    {
+      id: '5',
+      title: 'Python Programming Basics',
+      subject: 'Computer Science',
+      type: 'document',
+      uploadedBy: 'Dr. Gupta',
+      uploadDate: '2023-09-10',
+      fileSize: '1.5 MB'
+    }
+  ]);
+
+  // Filter content based on search term
+  const filteredContent = content.filter(
+    (item) =>
+      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.uploadedBy.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getTypeIcon = (type: Content['type']) => {
+  const handleDeleteContent = (contentId: string) => {
+    if (confirm('Are you sure you want to delete this content?')) {
+      setContent((prev) => prev.filter((item) => item.id !== contentId));
+      toast.success('Content deleted successfully');
+    }
+  };
+
+  const handleViewContent = (contentId: string) => {
+    toast('View content with ID: ' + contentId);
+  };
+
+  const handleEditContent = (contentId: string) => {
+    toast('Edit content with ID: ' + contentId);
+  };
+
+  const handleAddContent = () => {
+    toast('Add new content clicked');
+  };
+
+  const handleDownloadContent = (contentId: string) => {
+    toast('Download content with ID: ' + contentId);
+  };
+
+  const handleUploadContent = () => {
+    toast('Upload content clicked');
+  };
+
+  const getTypeColor = (type: Content['type']) => {
     switch (type) {
-      case 'document': return <FileText className="h-4 w-4 text-blue-500" />;
-      case 'video': return <Video className="h-4 w-4 text-red-500" />;
-      case 'image': return <Image className="h-4 w-4 text-green-500" />;
-      case 'other': return <File className="h-4 w-4 text-gray-500" />;
-      default: return <File className="h-4 w-4 text-gray-500" />;
+      case 'video': return 'red';
+      case 'image': return 'green';
+      case 'document': return 'blue';
+      default: return 'secondary';
     }
   };
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Subject</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Uploaded By</TableHead>
-            <TableHead>Upload Date</TableHead>
-            <TableHead>Size</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {contentList.length === 0 ? (
+    <>
+      <div className="flex justify-end mb-4">
+        <Button className="bg-orange-500 hover:bg-orange-600 mr-2" onClick={handleUploadContent}>
+          <Upload className="w-4 h-4 mr-2" />
+          Upload New Content
+        </Button>
+        <Button className="bg-green-500 hover:bg-green-600" onClick={handleAddContent}>
+          <FileDown className="w-4 h-4 mr-2" />
+          Add From Link
+        </Button>
+      </div>
+      
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-8">
-                {searchTerm ? 'No content found matching your search.' : 'No content available.'}
-              </TableCell>
+              <TableHead>Title</TableHead>
+              <TableHead>Subject</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Uploaded By</TableHead>
+              <TableHead>Upload Date</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ) : (
-            contentList.map((content) => (
-              <TableRow key={content.id}>
-                <TableCell className="font-medium">{content.title}</TableCell>
-                <TableCell>{content.subject}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    {getTypeIcon(content.type)}
-                    <span className="capitalize">{content.type}</span>
-                  </div>
-                </TableCell>
-                <TableCell>{content.uploadedBy}</TableCell>
-                <TableCell>{content.uploadDate}</TableCell>
-                <TableCell>{content.fileSize}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                      <Eye className="h-4 w-4" />
-                      <span className="sr-only">View</span>
+          </TableHeader>
+          <TableBody>
+            {filteredContent.length > 0 ? (
+              filteredContent.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">{item.title}</TableCell>
+                  <TableCell>{item.subject}</TableCell>
+                  <TableCell>
+                    <Button variant="outline" size="sm" className={`h-8 text-${getTypeColor(item.type)}-500 border-${getTypeColor(item.type)}-200 hover:bg-${getTypeColor(item.type)}-50 hover:text-${getTypeColor(item.type)}-600`}>
+                      {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
                     </Button>
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                      <Download className="h-4 w-4" />
-                      <span className="sr-only">Download</span>
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600">
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
-                    </Button>
-                  </div>
+                  </TableCell>
+                  <TableCell>{item.uploadedBy}</TableCell>
+                  <TableCell>{item.uploadDate}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleViewContent(item.id)}>
+                        <Eye className="h-4 w-4" />
+                        <span className="sr-only">View</span>
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditContent(item.id)}>
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 w-8 p-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
+                        onClick={() => handleDeleteContent(item.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleDownloadContent(item.id)}>
+                        <FileDown className="h-4 w-4" />
+                        <span className="sr-only">Download</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8">
+                  {searchTerm ? 'No content found matching your search.' : 'No content available.'}
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 };
 

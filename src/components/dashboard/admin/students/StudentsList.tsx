@@ -49,6 +49,7 @@ const StudentsList = ({ searchTerm = '' }: StudentsListProps) => {
           last_name,
           email,
           class_id,
+          status,
           classes:class_id(name)
         `)
         .eq('role', 'student');
@@ -67,8 +68,8 @@ const StudentsList = ({ searchTerm = '' }: StudentsListProps) => {
         name: `${student.first_name} ${student.last_name}`,
         email: student.email,
         class: student.classes?.name || 'Not assigned',
-        status: 'active' as 'active' | 'inactive' | 'suspended' // Default status
-      }));
+        status: (student.status || 'active') as 'active' | 'inactive' | 'suspended'
+      })) as Student[];
     }
   });
 

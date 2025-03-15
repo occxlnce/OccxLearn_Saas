@@ -26,6 +26,8 @@ const ViewStudentDialog: React.FC<ViewStudentDialogProps> = ({ open, onOpenChang
           first_name, 
           last_name, 
           role, 
+          status,
+          class_id,
           classes:class_id(name)
         `)
         .eq('id', studentId)
@@ -68,6 +70,10 @@ const ViewStudentDialog: React.FC<ViewStudentDialogProps> = ({ open, onOpenChang
               <div>
                 <p className="text-sm font-medium">Role</p>
                 <p className="text-sm text-gray-500 capitalize">{student.role}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Status</p>
+                <p className="text-sm text-gray-500 capitalize">{student.status || 'Active'}</p>
               </div>
             </div>
           ) : (

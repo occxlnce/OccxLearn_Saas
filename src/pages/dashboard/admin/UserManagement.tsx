@@ -1,101 +1,47 @@
 
 import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import SearchBar from '@/components/dashboard/SearchBar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StudentsList from '@/components/dashboard/admin/students/StudentsList';
 import TeachersList from '@/components/dashboard/admin/teachers/TeachersList';
-import { SearchBar } from '@/components/dashboard/SearchBar';
-import { Button } from '@/components/ui/button';
-import { Plus, UserPlus } from 'lucide-react';
-import AddStudentDialog from '@/components/dashboard/admin/students/AddStudentDialog';
-import AddTeacherDialog from '@/components/dashboard/admin/teachers/AddTeacherDialog';
-import { useQueryClient } from '@tanstack/react-query';
-import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
 
-const UserManagementPage = () => {
-  const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState('students');
+const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [addStudentDialogOpen, setAddStudentDialogOpen] = useState(false);
-  const [addTeacherDialogOpen, setAddTeacherDialogOpen] = useState(false);
-  
-  const location = useLocation();
-  
-  // Check if we have a search term in the location state (from navigation)
-  useEffect(() => {
-    if (location.state?.searchTerm) {
-      setSearchTerm(location.state.searchTerm);
-    }
-  }, [location.state]);
+  const [activeTab, setActiveTab] = useState('students');
   
   const handleSearch = (term: string) => {
     setSearchTerm(term);
   };
-
-  const handleAddUser = () => {
-    if (activeTab === 'students') {
-      setAddStudentDialogOpen(true);
-    } else {
-      setAddTeacherDialogOpen(true);
-    }
-  };
-
+  
   return (
-    <DashboardLayout role="admin" pageTitle="User Management">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div className="w-full md:w-1/2">
+    <DashboardLayout>
+      <div className="flex flex-col h-full">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">User Management</h1>
           <SearchBar 
             onSearch={handleSearch} 
-            placeholder={`Search ${activeTab}...`}
-            initialValue={searchTerm}
+            placeholder={`Search ${activeTab}...`} 
           />
         </div>
-        <Button className="bg-orange-500 hover:bg-orange-600" onClick={handleAddUser}>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add New {activeTab === 'students' ? 'Student' : 'Teacher'}
-        </Button>
+        
+        <Tabs defaultValue="students" onValueChange={setActiveTab} className="flex-1 flex flex-col">
+          <TabsList className="mb-6">
+            <TabsTrigger value="students">Students</TabsTrigger>
+            <TabsTrigger value="teachers">Teachers</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="students" className="flex-1">
+            <StudentsList searchTerm={searchTerm} />
+          </TabsContent>
+          
+          <TabsContent value="teachers" className="flex-1">
+            <TeachersList searchTerm={searchTerm} />
+          </TabsContent>
+        </Tabs>
       </div>
-      
-      <Tabs 
-        defaultValue="students" 
-        value={activeTab}
-        onValueChange={(value) => {
-          setActiveTab(value);
-          setSearchTerm(''); // Clear search when changing tabs
-        }}
-        className="w-full"
-      >
-        <TabsList className="mb-6">
-          <TabsTrigger value="students">Students</TabsTrigger>
-          <TabsTrigger value="teachers">Teachers</TabsTrigger>
-        </TabsList>
-        <TabsContent value="students">
-          <StudentsList searchTerm={searchTerm} />
-        </TabsContent>
-        <TabsContent value="teachers">
-          <TeachersList searchTerm={searchTerm} />
-        </TabsContent>
-      </Tabs>
-      
-      {/* Dialogs for adding new users */}
-      <AddStudentDialog 
-        open={addStudentDialogOpen} 
-        onOpenChange={setAddStudentDialogOpen}
-        onStudentAdded={() => {
-          queryClient.invalidateQueries({ queryKey: ['students'] });
-        }}
-      />
-      
-      <AddTeacherDialog 
-        open={addTeacherDialogOpen} 
-        onOpenChange={setAddTeacherDialogOpen}
-        onTeacherAdded={() => {
-          queryClient.invalidateQueries({ queryKey: ['teachers'] });
-        }}
-      />
     </DashboardLayout>
   );
 };
 
-export default UserManagementPage;
+export default UserManagement;
