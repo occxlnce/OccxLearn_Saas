@@ -1,242 +1,185 @@
+
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import SearchBar from '@/components/dashboard/SearchBar';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Edit, Trash2, Plus } from 'lucide-react';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
-
-interface Subject {
-  id: string;
-  name: string;
-  description: string;
-}
-
-interface SubjectsListProps {
-  subjects: Subject[];
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
-}
-
-const SubjectsList: React.FC<SubjectsListProps> = ({ subjects, onEdit, onDelete }) => {
-  return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {subjects.map((subject) => (
-            <TableRow key={subject.id}>
-              <TableCell className="font-medium">{subject.name}</TableCell>
-              <TableCell>{subject.description}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => onEdit(subject.id)}>
-                    <Edit className="h-4 w-4" />
-                    <span className="sr-only">Edit</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
-                    onClick={() => onDelete(subject.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Delete</span>
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
-};
+import { supabase } from '@/integrations/supabase/client';
+import SubjectsList from '@/components/dashboard/admin/subjects/SubjectsList';
+import SubjectDialog from '@/components/dashboard/admin/subjects/SubjectDialog';
+import DeleteSubjectDialog from '@/components/dashboard/admin/subjects/DeleteSubjectDialog';
+import ViewSubjectDialog from '@/components/dashboard/admin/subjects/ViewSubjectDialog';
+import { Subject } from '@/components/dashboard/admin/subjects/SubjectListItem';
 
 const SubjectsManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [subjects, setSubjects] = useState<Subject[]>([
-    { id: '1', name: 'Mathematics', description: 'The study of numbers, quantity, space, and change.' },
-    { id: '2', name: 'Science', description: 'The pursuit and application of knowledge and understanding of the natural and social world.' },
-    { id: '3', name: 'History', description: 'The study of past events, particularly in human affairs.' },
-  ]);
-  const [isAdding, setIsAdding] = useState(false);
-  const [newSubjectName, setNewSubjectName] = useState('');
-  const [newSubjectDescription, setNewSubjectDescription] = useState('');
-  const [editingSubjectId, setEditingSubjectId] = useState<string | null>(null);
-  const [editedSubjectName, setEditedSubjectName] = useState('');
-  const [editedSubjectDescription, setEditedSubjectDescription] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
+  const [selectedSubjectName, setSelectedSubjectName] = useState<string>('');
+
+  useEffect(() => {
+    fetchSubjects();
+    
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('public:subjects')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'subjects' }, 
+        (payload) => {
+          fetchSubjects(); // Refetch subjects when any change occurs
+        }
+      )
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []);
+
+  const fetchSubjects = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('subjects')
+        .select('*')
+        .order('name', { ascending: true });
+      
+      if (error) throw error;
+      
+      setSubjects(data || []);
+    } catch (error) {
+      console.error('Error fetching subjects:', error);
+      toast.error('Failed to load subjects');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
   };
 
-  const handleAddSubject = () => {
-    setIsAdding(true);
+  const handleEdit = (id: string) => {
+    setSelectedSubjectId(id);
+    setEditDialogOpen(true);
   };
 
-  const handleSaveNewSubject = () => {
-    if (newSubjectName.trim() === '') {
-      toast.error('Subject name cannot be empty.');
-      return;
+  const handleDelete = (id: string) => {
+    const subject = subjects.find(s => s.id === id);
+    setSelectedSubjectId(id);
+    if (subject) {
+      setSelectedSubjectName(subject.name);
     }
-
-    const newSubject: Subject = {
-      id: String(Date.now()),
-      name: newSubjectName,
-      description: newSubjectDescription,
-    };
-
-    setSubjects([...subjects, newSubject]);
-    setIsAdding(false);
-    setNewSubjectName('');
-    setNewSubjectDescription('');
-    toast.success('Subject added successfully.');
+    setDeleteDialogOpen(true);
   };
 
-  const handleCancelNewSubject = () => {
-    setIsAdding(false);
-    setNewSubjectName('');
-    setNewSubjectDescription('');
+  const handleView = (id: string) => {
+    setSelectedSubjectId(id);
+    setViewDialogOpen(true);
   };
 
-  const handleEditSubject = (id: string) => {
-    const subjectToEdit = subjects.find((subject) => subject.id === id);
-    if (subjectToEdit) {
-      setEditingSubjectId(id);
-      setEditedSubjectName(subjectToEdit.name);
-      setEditedSubjectDescription(subjectToEdit.description);
-    }
-  };
-
-  const handleUpdateSubject = () => {
-    if (editedSubjectName.trim() === '') {
-      toast.error('Subject name cannot be empty.');
-      return;
-    }
-
-    const updatedSubjects = subjects.map((subject) =>
-      subject.id === editingSubjectId
-        ? { ...subject, name: editedSubjectName, description: editedSubjectDescription }
-        : subject
+  const filteredSubjects = subjects
+    .filter(subject => 
+      (subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       subject.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       (subject.description && subject.description.toLowerCase().includes(searchTerm.toLowerCase())))
+    )
+    .filter(subject => 
+      departmentFilter === 'all' || 
+      (subject.department && subject.department.toLowerCase() === departmentFilter.toLowerCase())
     );
 
-    setSubjects(updatedSubjects);
-    setEditingSubjectId(null);
-    setEditedSubjectName('');
-    setEditedSubjectDescription('');
-    toast.success('Subject updated successfully.');
-  };
-
-  const handleCancelEdit = () => {
-    setEditingSubjectId(null);
-    setEditedSubjectName('');
-    setEditedSubjectDescription('');
-  };
-
-  const handleDeleteSubject = (id: string) => {
-    setSubjects(subjects.filter((subject) => subject.id !== id));
-    toast.success('Subject deleted successfully.');
-  };
-
-  const filteredSubjects = subjects.filter(subject =>
-    subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    subject.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Extract unique departments for the filter
+  const departments = ['all', ...new Set(subjects
+    .filter(subject => subject.department)
+    .map(subject => subject.department as string)
+  )];
 
   return (
     <DashboardLayout role="admin" pageTitle="Subjects Management">
       <div>
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <h1 className="text-2xl font-bold">Subjects Management</h1>
-          <SearchBar onSearch={handleSearch} placeholder="Search subjects..." />
+          <div className="flex w-full md:w-auto flex-col md:flex-row gap-2">
+            <SearchBar 
+              onSearch={handleSearch} 
+              placeholder="Search subjects..." 
+              className="w-full md:w-64"
+            />
+            <Select 
+              value={departmentFilter} 
+              onValueChange={setDepartmentFilter}
+            >
+              <SelectTrigger className="w-full md:w-40">
+                <SelectValue placeholder="Filter by department" />
+              </SelectTrigger>
+              <SelectContent>
+                {departments.map((dept) => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept === 'all' ? 'All Departments' : dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <div className="mb-4">
-          <Button onClick={handleAddSubject} className="bg-green-500 hover:bg-green-600">
+        <div className="mb-6">
+          <Button onClick={() => setAddDialogOpen(true)} className="bg-green-500 hover:bg-green-600">
             <Plus className="w-4 h-4 mr-2" />
             Add New Subject
           </Button>
         </div>
 
-        {isAdding && (
-          <div className="mb-4 p-4 border rounded-md">
-            <h3 className="text-lg font-semibold mb-2">Add New Subject</h3>
-            <div className="mb-2">
-              <label htmlFor="newSubjectName" className="block text-sm font-medium text-gray-700">Name</label>
-              <Input
-                type="text"
-                id="newSubjectName"
-                className="mt-1 block w-full"
-                value={newSubjectName}
-                onChange={(e) => setNewSubjectName(e.target.value)}
-              />
-            </div>
-            <div className="mb-2">
-              <label htmlFor="newSubjectDescription" className="block text-sm font-medium text-gray-700">Description</label>
-              <Input
-                type="text"
-                id="newSubjectDescription"
-                className="mt-1 block w-full"
-                value={newSubjectDescription}
-                onChange={(e) => setNewSubjectDescription(e.target.value)}
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={handleCancelNewSubject}>Cancel</Button>
-              <Button onClick={handleSaveNewSubject}>Save</Button>
-            </div>
-          </div>
-        )}
+        <SubjectsList 
+          subjects={filteredSubjects} 
+          onEdit={handleEdit} 
+          onDelete={handleDelete}
+          onView={handleView}
+          isLoading={isLoading}
+        />
 
-        {editingSubjectId && (
-          <div className="mb-4 p-4 border rounded-md">
-            <h3 className="text-lg font-semibold mb-2">Edit Subject</h3>
-            <div className="mb-2">
-              <label htmlFor="editedSubjectName" className="block text-sm font-medium text-gray-700">Name</label>
-              <Input
-                type="text"
-                id="editedSubjectName"
-                className="mt-1 block w-full"
-                value={editedSubjectName}
-                onChange={(e) => setEditedSubjectName(e.target.value)}
-              />
-            </div>
-            <div className="mb-2">
-              <label htmlFor="editedSubjectDescription" className="block text-sm font-medium text-gray-700">Description</label>
-              <Input
-                type="text"
-                id="editedSubjectDescription"
-                className="mt-1 block w-full"
-                value={editedSubjectDescription}
-                onChange={(e) => setEditedSubjectDescription(e.target.value)}
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-              <Button onClick={handleUpdateSubject}>Update</Button>
-            </div>
-          </div>
-        )}
+        <SubjectDialog 
+          open={addDialogOpen} 
+          onOpenChange={setAddDialogOpen} 
+          mode="add"
+          onSuccess={fetchSubjects}
+        />
 
-        <SubjectsList
-          subjects={filteredSubjects}
-          onEdit={handleEditSubject}
-          onDelete={handleDeleteSubject}
+        <SubjectDialog 
+          open={editDialogOpen} 
+          onOpenChange={setEditDialogOpen} 
+          subjectId={selectedSubjectId}
+          mode="edit"
+          onSuccess={fetchSubjects}
+        />
+
+        <DeleteSubjectDialog 
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          subjectId={selectedSubjectId}
+          subjectName={selectedSubjectName}
+          onSuccess={fetchSubjects}
+        />
+
+        <ViewSubjectDialog 
+          open={viewDialogOpen}
+          onOpenChange={setViewDialogOpen}
+          subjectId={selectedSubjectId}
         />
       </div>
     </DashboardLayout>

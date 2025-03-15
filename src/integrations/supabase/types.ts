@@ -275,6 +275,53 @@ export type Database = {
           },
         ]
       }
+      subjects: {
+        Row: {
+          code: string
+          created_at: string
+          department: string | null
+          description: string | null
+          grade_level: string | null
+          id: string
+          name: string
+          school_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          department?: string | null
+          description?: string | null
+          grade_level?: string | null
+          id?: string
+          name: string
+          school_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          department?: string | null
+          description?: string | null
+          grade_level?: string | null
+          id?: string
+          name?: string
+          school_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subjects_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       timetable_entries: {
         Row: {
           class_id: string
