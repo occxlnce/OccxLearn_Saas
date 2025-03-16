@@ -322,6 +322,39 @@ export type Database = {
           },
         ]
       }
+      syllabus: {
+        Row: {
+          created_at: string
+          description: string | null
+          grade: string
+          id: string
+          level: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          grade: string
+          id?: string
+          level?: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          grade?: string
+          id?: string
+          level?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       timetable_entries: {
         Row: {
           class_id: string

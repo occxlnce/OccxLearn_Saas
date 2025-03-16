@@ -40,13 +40,13 @@ const AddSyllabusDialog = ({
     try {
       const { error } = await supabase
         .from('syllabus')
-        .insert([{
+        .insert({
           subject,
           grade,
           description,
           status,
           level
-        }]);
+        });
       
       if (error) throw error;
       
