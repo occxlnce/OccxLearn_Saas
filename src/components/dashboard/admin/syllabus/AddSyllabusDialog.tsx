@@ -7,17 +7,24 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AddSyllabusDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-const AddSyllabusDialog = ({ open, onOpenChange }: AddSyllabusDialogProps) => {
+const AddSyllabusDialog = ({ 
+  open, 
+  onOpenChange,
+  onSuccess 
+}: AddSyllabusDialogProps) => {
   const [subject, setSubject] = useState('');
   const [grade, setGrade] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('draft');
+  const [level, setLevel] = useState('secondary');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,13 +38,22 @@ const AddSyllabusDialog = ({ open, onOpenChange }: AddSyllabusDialogProps) => {
     setIsSubmitting(true);
     
     try {
-      // TODO: Implement actual API integration
-      // Simulating server delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase
+        .from('syllabus')
+        .insert([{
+          subject,
+          grade,
+          description,
+          status,
+          level
+        }]);
+      
+      if (error) throw error;
       
       toast.success('Syllabus added successfully');
       resetForm();
       onOpenChange(false);
+      if (onSuccess) onSuccess();
     } catch (error) {
       console.error('Error adding syllabus:', error);
       toast.error('Failed to add syllabus');
@@ -51,6 +67,7 @@ const AddSyllabusDialog = ({ open, onOpenChange }: AddSyllabusDialogProps) => {
     setGrade('');
     setDescription('');
     setStatus('draft');
+    setLevel('secondary');
   };
 
   return (
@@ -113,18 +130,33 @@ const AddSyllabusDialog = ({ open, onOpenChange }: AddSyllabusDialogProps) => {
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger id="status">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="archived">Archived</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="level">Education Level</Label>
+              <Select value={level} onValueChange={setLevel}>
+                <SelectTrigger id="level">
+                  <SelectValue placeholder="Select level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="primary">Primary</SelectItem>
+                  <SelectItem value="secondary">Secondary</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           
           <DialogFooter>

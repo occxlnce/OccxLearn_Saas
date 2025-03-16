@@ -7,14 +7,45 @@ import { PlusCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SyllabusList from '@/components/dashboard/admin/syllabus/SyllabusList';
 import AddSyllabusDialog from '@/components/dashboard/admin/syllabus/AddSyllabusDialog';
+import { useSyllabus } from '@/hooks/useSyllabus';
+import ViewSyllabusDialog from '@/components/dashboard/admin/syllabus/ViewSyllabusDialog';
+import DeleteSyllabusDialog from '@/components/dashboard/admin/syllabus/DeleteSyllabusDialog';
+import EditSyllabusDialog from '@/components/dashboard/admin/syllabus/EditSyllabusDialog';
 
 const SyllabusManagement = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const {
+    syllabus,
+    isLoading,
+    handleSearch,
+    handleLevelFilter,
+    fetchSyllabus
+  } = useSyllabus();
+  
   const [activeTab, setActiveTab] = useState('all');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedSyllabusId, setSelectedSyllabusId] = useState<string | null>(null);
+  const [selectedSyllabusName, setSelectedSyllabusName] = useState<string>('');
   
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
+  const handleEdit = (id: string) => {
+    setSelectedSyllabusId(id);
+    setEditDialogOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    const syllabusItem = syllabus.find(s => s.id === id);
+    setSelectedSyllabusId(id);
+    if (syllabusItem) {
+      setSelectedSyllabusName(syllabusItem.subject);
+    }
+    setDeleteDialogOpen(true);
+  };
+
+  const handleView = (id: string) => {
+    setSelectedSyllabusId(id);
+    setViewDialogOpen(true);
   };
   
   return (
@@ -34,7 +65,10 @@ const SyllabusManagement = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="all" onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <Tabs defaultValue="all" onValueChange={(value) => {
+          setActiveTab(value);
+          handleLevelFilter(value);
+        }} className="flex-1 flex flex-col">
           <TabsList className="mb-6">
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="primary">Primary</TabsTrigger>
@@ -42,22 +76,65 @@ const SyllabusManagement = () => {
           </TabsList>
           
           <TabsContent value="all" className="flex-1">
-            <SyllabusList searchTerm={searchTerm} filter="all" />
+            <SyllabusList 
+              syllabus={syllabus} 
+              isLoading={isLoading}
+              filter="all"
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onView={handleView}
+            />
           </TabsContent>
           
           <TabsContent value="primary" className="flex-1">
-            <SyllabusList searchTerm={searchTerm} filter="primary" />
+            <SyllabusList 
+              syllabus={syllabus} 
+              isLoading={isLoading}
+              filter="primary"
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onView={handleView}
+            />
           </TabsContent>
           
           <TabsContent value="secondary" className="flex-1">
-            <SyllabusList searchTerm={searchTerm} filter="secondary" />
+            <SyllabusList 
+              syllabus={syllabus} 
+              isLoading={isLoading}
+              filter="secondary"
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onView={handleView}
+            />
           </TabsContent>
         </Tabs>
       </div>
       
       <AddSyllabusDialog 
         open={addDialogOpen} 
-        onOpenChange={setAddDialogOpen} 
+        onOpenChange={setAddDialogOpen}
+        onSuccess={fetchSyllabus}
+      />
+
+      <EditSyllabusDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        syllabusId={selectedSyllabusId}
+        onSuccess={fetchSyllabus}
+      />
+
+      <DeleteSyllabusDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        syllabusId={selectedSyllabusId}
+        syllabusName={selectedSyllabusName}
+        onSuccess={fetchSyllabus}
+      />
+
+      <ViewSyllabusDialog
+        open={viewDialogOpen}
+        onOpenChange={setViewDialogOpen}
+        syllabusId={selectedSyllabusId}
       />
     </DashboardLayout>
   );

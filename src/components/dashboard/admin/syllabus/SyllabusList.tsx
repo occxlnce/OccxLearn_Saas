@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Table,
   TableBody,
@@ -10,117 +10,28 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Trash2, Eye, FileText } from 'lucide-react';
-import { toast } from 'sonner';
+import { Edit, Trash2, Eye } from 'lucide-react';
+import { Syllabus } from '@/hooks/useSyllabus';
 
 interface SyllabusListProps {
+  syllabus: Syllabus[];
+  isLoading: boolean;
   searchTerm?: string;
-  filter?: string; // Added filter prop
+  filter?: string;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+  onView: (id: string) => void;
 }
 
-interface Syllabus {
-  id: string;
-  subject: string;
-  grade: string;
-  lastUpdated: string;
-  status: "published" | "draft" | "archived";
-  level?: "primary" | "secondary"; // Added level property for filtering
-}
-
-// Mock data for syllabus
-const mockSyllabus: Syllabus[] = [
-  {
-    id: '1',
-    subject: 'Mathematics - Algebra I',
-    grade: '9th',
-    lastUpdated: '2023-08-15',
-    status: 'published',
-    level: 'secondary'
-  },
-  {
-    id: '2',
-    subject: 'Science - Biology',
-    grade: '10th',
-    lastUpdated: '2023-08-20',
-    status: 'published',
-    level: 'secondary'
-  },
-  {
-    id: '3',
-    subject: 'English - Literature',
-    grade: '11th',
-    lastUpdated: '2023-08-25',
-    status: 'draft',
-    level: 'secondary'
-  },
-  {
-    id: '4',
-    subject: 'History - World Wars',
-    grade: '12th',
-    lastUpdated: '2023-08-28',
-    status: 'published',
-    level: 'secondary'
-  },
-  {
-    id: '5',
-    subject: 'Computer Science - Programming',
-    grade: 'Elective',
-    lastUpdated: '2023-07-10',
-    status: 'archived',
-    level: 'secondary'
-  },
-  {
-    id: '6',
-    subject: 'Mathematics - Basic',
-    grade: '3rd',
-    lastUpdated: '2023-09-15',
-    status: 'published',
-    level: 'primary'
-  },
-  {
-    id: '7',
-    subject: 'Science - Nature',
-    grade: '4th',
-    lastUpdated: '2023-09-20',
-    status: 'published',
-    level: 'primary'
-  }
-];
-
-const SyllabusList = ({ searchTerm = '', filter = 'all' }: SyllabusListProps) => {
-  const [syllabus, setSyllabus] = useState<Syllabus[]>(mockSyllabus);
-
-  // Filter syllabus based on search term and filter option
-  const filteredSyllabus = syllabus.filter(item => {
-    // Search term filter
-    const matchesSearch = 
-      item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.grade.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Level filter
-    const matchesFilter = 
-      filter === 'all' || 
-      (filter === 'primary' && item.level === 'primary') || 
-      (filter === 'secondary' && item.level === 'secondary');
-    
-    return matchesSearch && matchesFilter;
-  });
-
-  const handleDeleteSyllabus = (syllabusId: string) => {
-    if (confirm('Are you sure you want to delete this syllabus?')) {
-      setSyllabus((prev) => prev.filter((item) => item.id !== syllabusId));
-      toast.success('Syllabus deleted successfully');
-    }
-  };
-
-  const handleViewSyllabus = (syllabusId: string) => {
-    toast('View syllabus with ID: ' + syllabusId);
-  };
-
-  const handleEditSyllabus = (syllabusId: string) => {
-    toast('Edit syllabus with ID: ' + syllabusId);
-  };
-
+const SyllabusList = ({ 
+  syllabus, 
+  isLoading, 
+  searchTerm = '', 
+  filter = 'all',
+  onEdit,
+  onDelete,
+  onView
+}: SyllabusListProps) => {
   const getStatusColor = (status: Syllabus['status']) => {
     switch (status) {
       case 'published': return 'success';
@@ -129,6 +40,10 @@ const SyllabusList = ({ searchTerm = '', filter = 'all' }: SyllabusListProps) =>
       default: return 'default';
     }
   };
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading syllabus...</div>;
+  }
 
   return (
     <div className="rounded-md border">
@@ -143,8 +58,8 @@ const SyllabusList = ({ searchTerm = '', filter = 'all' }: SyllabusListProps) =>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredSyllabus.length > 0 ? (
-            filteredSyllabus.map((item) => (
+          {syllabus.length > 0 ? (
+            syllabus.map((item) => (
               <TableRow key={item.id}>
                 <TableCell className="font-medium">{item.subject}</TableCell>
                 <TableCell>{item.grade}</TableCell>
@@ -156,11 +71,11 @@ const SyllabusList = ({ searchTerm = '', filter = 'all' }: SyllabusListProps) =>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleViewSyllabus(item.id)}>
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => onView(item.id)}>
                       <Eye className="h-4 w-4" />
                       <span className="sr-only">View</span>
                     </Button>
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditSyllabus(item.id)}>
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => onEdit(item.id)}>
                       <Edit className="h-4 w-4" />
                       <span className="sr-only">Edit</span>
                     </Button>
@@ -168,7 +83,7 @@ const SyllabusList = ({ searchTerm = '', filter = 'all' }: SyllabusListProps) =>
                       variant="outline" 
                       size="sm" 
                       className="h-8 w-8 p-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
-                      onClick={() => handleDeleteSyllabus(item.id)}
+                      onClick={() => onDelete(item.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Delete</span>
