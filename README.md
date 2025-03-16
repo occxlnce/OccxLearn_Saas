@@ -1,69 +1,97 @@
-# Welcome to your Lovable project
+# OccxLearn
 
-## Project info
+## Overview
 
-**URL**: https://lovable.dev/projects/36372dba-ff77-47b4-b467-016fe57573c7
+OccxLearn is a comprehensive School Management System designed to streamline administrative tasks and enhance the learning experience for students, teachers, and administrators. Built primarily using TypeScript, this SaaS solution offers a wide range of features to manage school operations efficiently.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Student Management**: Easily manage student information, including personal details, enrollment status, and academic records.
+- **Teacher Management**: Maintain teacher profiles, assign classes, and track performance.
+- **Class Scheduling**: Create and manage class schedules, including timetables and room assignments.
+- **Attendance Tracking**: Monitor student and teacher attendance with automated tracking and reporting.
+- **Grade Management**: Record and calculate grades, generate report cards, and provide feedback.
+- **Communication Tools**: Facilitate communication between students, teachers, and parents through messaging and notifications.
+- **Library Management**: Manage library resources, issue books, and track returns.
+- **Event Management**: Organize school events, track participation, and manage logistics.
+- **Reporting**: Generate comprehensive reports on various aspects of school management.
 
-**Use Lovable**
+## Installation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/36372dba-ff77-47b4-b467-016fe57573c7) and start prompting.
+To get started with OccxLearn, follow these steps:
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/occxlnce/occxlearn.git
+   ```
+2. Navigate to the project directory:
+   ```sh
+   cd occxlearn
+   ```
+3. Install the dependencies:
+   ```sh
+   npm install
+   ```
 
-**Use your preferred IDE**
+## Configuration
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Before running the application, you need to configure the environment variables. Create a `.env` file in the root directory and add the following variables:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```env
+DATABASE_URL=your_database_url
+PORT=your_port_number
+JWT_SECRET=your_jwt_secret
 ```
 
-**Edit a file directly in GitHub**
+## Usage
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+To start the development server, run the following command:
 
-**Use GitHub Codespaces**
+```sh
+npm start
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The application will be available at `http://localhost:your_port_number`.
 
-## What technologies are used for this project?
+## API Documentation
 
-This project is built with .
+The API documentation provides detailed information about the endpoints and their usage. You can access the API documentation at `http://localhost:your_port_number/api-docs`.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Contributing
 
-## How can I deploy this project?
+We welcome contributions! To contribute to OccxLearn, follow these steps:
 
-Simply open [Lovable](https://lovable.dev/projects/36372dba-ff77-47b4-b467-016fe57573c7) and click on Share -> Publish.
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'Add some feature'`).
+5. Push to the branch (`git push origin feature-branch`).
+6. Open a pull request.
 
-## I want to use a custom domain - is that possible?
+Please ensure that your code adheres to the project's coding standards and includes appropriate tests.
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Running Tests
+
+To run the tests, use the following command:
+
+```sh
+npm test
+```
+
+## Deployment
+
+To deploy OccxLearn, follow these steps:
+
+1. Build the project:
+   ```sh
+   npm run build
+   ```
+2. Deploy the build files to your preferred hosting service.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+If you have any questions, suggestions, or issues, feel free to open an issue or contact the maintainers directly.
