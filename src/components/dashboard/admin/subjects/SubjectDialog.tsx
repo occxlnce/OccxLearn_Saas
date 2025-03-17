@@ -74,14 +74,13 @@ const SubjectDialog: React.FC<SubjectDialogProps> = ({
         grade_level: data.gradeLevel,
         department: data.department,
         status: data.status,
-        // We don't need to set created_at or updated_at as they have default values
       };
       
       let response;
       if (mode === 'add') {
         response = await supabase
           .from('subjects')
-          .insert([subjectData]);
+          .insert(subjectData);  // Remove the array brackets as Supabase v2 handles this
       } else {
         response = await supabase
           .from('subjects')
@@ -90,14 +89,17 @@ const SubjectDialog: React.FC<SubjectDialogProps> = ({
       }
       
       const { error } = response;
-      if (error) throw error;
+      if (error) {
+        console.error('Error response:', error);
+        throw error;
+      }
       
       toast.success(`Subject ${mode === 'add' ? 'added' : 'updated'} successfully`);
       onOpenChange(false);
       if (onSuccess) onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error ${mode === 'add' ? 'adding' : 'updating'} subject:`, error);
-      toast.error(`Failed to ${mode === 'add' ? 'add' : 'update'} subject`);
+      toast.error(`Failed to ${mode === 'add' ? 'add' : 'update'} subject: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
