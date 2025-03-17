@@ -102,11 +102,15 @@ const AddContentDialog: React.FC<AddContentDialogProps> = ({
         const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
         const filePath = `${userId}/${fileName}`;
         
+        // Using new storage policies that we've set up
         const { error: uploadError, data: uploadData } = await supabase.storage
           .from('content-files')
           .upload(filePath, file);
         
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          throw new Error(`Upload failed: ${uploadError.message}`);
+        }
         
         // Get the public URL
         const { data: urlData } = supabase.storage
