@@ -116,17 +116,23 @@ const AddContentDialog: React.FC<AddContentDialogProps> = ({
         fileUrl = urlData.publicUrl;
       }
       
-      // Insert content record
+      // Store subject and grade in the description as metadata since we don't have these fields in the table
+      const metadataDescription = {
+        userDescription: description,
+        subject: subject,
+        grade: grade
+      };
+      
+      // Insert content record - note we're not using subject and grade directly
       const { error } = await supabase
         .from('contents')
         .insert({
           title,
-          description,
+          description: JSON.stringify(metadataDescription),
           type: contentType,
-          subject,
-          grade,
           file_url: fileUrl,
-          created_by: authData.session.user.id
+          created_by: authData.session.user.id,
+          school_id: '00000000-0000-0000-0000-000000000000' // Using a placeholder since this is required
         });
       
       if (error) throw error;

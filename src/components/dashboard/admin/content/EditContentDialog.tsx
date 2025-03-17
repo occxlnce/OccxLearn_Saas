@@ -46,11 +46,23 @@ const EditContentDialog: React.FC<EditContentDialogProps> = ({
     if (open && content) {
       // Initialize form with content data
       setTitle(content.title || '');
-      setDescription(content.description || '');
       setContentType(content.type || '');
-      setSubject(content.subject || '');
-      setGrade(content.grade || '');
       setExistingFileUrl(content.file_url || null);
+      
+      // Try to parse metadata from description JSON if it exists
+      try {
+        const descriptionObj = content.description ? JSON.parse(content.description) : null;
+        if (descriptionObj && typeof descriptionObj === 'object') {
+          setDescription(descriptionObj.userDescription || '');
+          setSubject(descriptionObj.subject || '');
+          setGrade(descriptionObj.grade || '');
+        } else {
+          setDescription(content.description || '');
+        }
+      } catch (e) {
+        // If parsing fails, just use the description as is
+        setDescription(content.description || '');
+      }
       
       fetchSubjects();
     }
@@ -118,16 +130,21 @@ const EditContentDialog: React.FC<EditContentDialogProps> = ({
         
         fileUrl = urlData.publicUrl;
       }
+
+      // Store subject and grade in the description as metadata
+      const metadataDescription = {
+        userDescription: description,
+        subject: subject,
+        grade: grade
+      };
       
       // Update content record
       const { error } = await supabase
         .from('contents')
         .update({
           title,
-          description,
+          description: JSON.stringify(metadataDescription),
           type: contentType,
-          subject,
-          grade,
           file_url: fileUrl,
           updated_at: new Date().toISOString()
         })

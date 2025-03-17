@@ -26,6 +26,8 @@ interface ContentDetails {
   updated_at: string;
   created_by_name?: string;
   subject_name?: string;
+  // Raw data from database
+  raw_description?: string | null;
 }
 
 const ViewContentDialog: React.FC<ViewContentDialogProps> = ({ 
@@ -64,7 +66,34 @@ const ViewContentDialog: React.FC<ViewContentDialogProps> = ({
       
       if (error) throw error;
       
-      let contentWithDetails = { ...data } as ContentDetails;
+      // Parse metadata from description if it exists
+      let parsedDescription = '';
+      let parsedSubject = null;
+      let parsedGrade = null;
+      
+      try {
+        if (data.description) {
+          const descriptionObj = JSON.parse(data.description);
+          if (descriptionObj && typeof descriptionObj === 'object') {
+            parsedDescription = descriptionObj.userDescription || '';
+            parsedSubject = descriptionObj.subject || null;
+            parsedGrade = descriptionObj.grade || null;
+          } else {
+            parsedDescription = data.description;
+          }
+        }
+      } catch (e) {
+        // If parsing fails, just use the description as is
+        parsedDescription = data.description || '';
+      }
+      
+      let contentWithDetails: ContentDetails = {
+        ...data,
+        description: parsedDescription,
+        subject: parsedSubject,
+        grade: parsedGrade,
+        raw_description: data.description
+      };
       
       // Get creator name if available
       if (data.created_by) {
@@ -81,11 +110,11 @@ const ViewContentDialog: React.FC<ViewContentDialogProps> = ({
       }
       
       // Get subject name if available
-      if (data.subject) {
+      if (parsedSubject) {
         const { data: subjectData, error: subjectError } = await supabase
           .from('subjects')
           .select('name')
-          .eq('id', data.subject)
+          .eq('id', parsedSubject)
           .single();
           
         if (!subjectError && subjectData) {
