@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -85,7 +84,6 @@ const AddContentDialog: React.FC<AddContentDialogProps> = ({
     setIsLoading(true);
     
     try {
-      // Check if user is authenticated
       const { data: authData } = await supabase.auth.getSession();
       if (!authData.session) {
         toast.error('You must be signed in to upload content');
@@ -95,24 +93,26 @@ const AddContentDialog: React.FC<AddContentDialogProps> = ({
 
       let fileUrl = null;
       
-      // If a file was selected, upload it to storage
       if (file) {
         const userId = authData.session.user.id;
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-        const filePath = `${userId}/${fileName}`;
+        const filePath = `content-files/${fileName}`;
         
-        // Using new storage policies that we've set up
+        console.log('Uploading file to path:', filePath);
+        
         const { error: uploadError, data: uploadData } = await supabase.storage
           .from('content-files')
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
         
         if (uploadError) {
-          console.error('Upload error:', uploadError);
+          console.error('Upload error details:', uploadError);
           throw new Error(`Upload failed: ${uploadError.message}`);
         }
         
-        // Get the public URL
         const { data: urlData } = supabase.storage
           .from('content-files')
           .getPublicUrl(filePath);
@@ -120,14 +120,12 @@ const AddContentDialog: React.FC<AddContentDialogProps> = ({
         fileUrl = urlData.publicUrl;
       }
       
-      // Store subject and grade in the description as metadata since we don't have these fields in the table
       const metadataDescription = {
         userDescription: description,
         subject: subject,
         grade: grade
       };
       
-      // Insert content record - note we're not using subject and grade directly
       const { error } = await supabase
         .from('contents')
         .insert({
@@ -136,7 +134,7 @@ const AddContentDialog: React.FC<AddContentDialogProps> = ({
           type: contentType,
           file_url: fileUrl,
           created_by: authData.session.user.id,
-          school_id: '00000000-0000-0000-0000-000000000000' // Using a placeholder since this is required
+          school_id: '00000000-0000-0000-0000-000000000000'
         });
       
       if (error) throw error;
