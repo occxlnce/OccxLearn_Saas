@@ -14,7 +14,6 @@ import NotFound from "./pages/NotFound";
 // Admin Dashboard Pages
 import AdminDashboard from "./pages/dashboard/admin/Dashboard";
 import UserManagementPage from "./pages/dashboard/admin/UserManagement";
-import SyllabusManagementPage from "./pages/dashboard/admin/SyllabusManagement";
 import SubjectsManagementPage from "./pages/dashboard/admin/SubjectsManagement";
 import ContentManagementPage from "./pages/dashboard/admin/ContentManagement";
 import AttendanceManagementPage from "./pages/dashboard/admin/AttendanceManagement";
@@ -55,7 +54,6 @@ const App = () => (
           {/* Admin Routes */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<UserManagementPage />} />
-          <Route path="/admin/syllabus" element={<SyllabusManagementPage />} />
           <Route path="/admin/subjects" element={<SubjectsManagementPage />} />
           <Route path="/admin/content" element={<ContentManagementPage />} />
           <Route path="/admin/attendance" element={<AttendanceManagementPage />} />
