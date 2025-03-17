@@ -36,6 +36,14 @@ const DeleteSubjectDialog: React.FC<DeleteSubjectDialogProps> = ({
     try {
       setIsDeleting(true);
       
+      // Check if user is authenticated
+      const { data: authData } = await supabase.auth.getSession();
+      if (!authData.session) {
+        toast.error('You must be signed in to perform this action');
+        setIsDeleting(false);
+        return;
+      }
+      
       const { error } = await supabase
         .from('subjects')
         .delete()
@@ -45,9 +53,9 @@ const DeleteSubjectDialog: React.FC<DeleteSubjectDialogProps> = ({
       
       toast.success('Subject deleted successfully');
       if (onSuccess) onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting subject:', error);
-      toast.error('Failed to delete subject');
+      toast.error(`Failed to delete subject: ${error.message || 'Unknown error'}`);
     } finally {
       setIsDeleting(false);
       onOpenChange(false);

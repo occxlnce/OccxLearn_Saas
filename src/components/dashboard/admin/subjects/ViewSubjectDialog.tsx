@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface ViewSubjectDialogProps {
   open: boolean;
@@ -29,6 +30,15 @@ const ViewSubjectDialog: React.FC<ViewSubjectDialogProps> = ({
     
     try {
       setIsLoading(true);
+      
+      // Check if user is authenticated
+      const { data: authData } = await supabase.auth.getSession();
+      if (!authData.session) {
+        toast.error('You must be signed in to view subject details');
+        onOpenChange(false);
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('subjects')
         .select('*')
@@ -37,8 +47,9 @@ const ViewSubjectDialog: React.FC<ViewSubjectDialogProps> = ({
       
       if (error) throw error;
       setSubject(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching subject:', error);
+      toast.error(`Failed to load subject details: ${error.message || 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }

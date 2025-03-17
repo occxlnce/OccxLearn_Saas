@@ -67,6 +67,13 @@ const SubjectDialog: React.FC<SubjectDialogProps> = ({
     try {
       setLoading(true);
       
+      // Check if user is authenticated
+      const { data: authData } = await supabase.auth.getSession();
+      if (!authData.session) {
+        toast.error('You must be signed in to perform this action');
+        return;
+      }
+      
       // Map the form data to the database structure
       const subjectData = {
         name: data.name,
@@ -80,7 +87,7 @@ const SubjectDialog: React.FC<SubjectDialogProps> = ({
       if (mode === 'add') {
         response = await supabase
           .from('subjects')
-          .insert(subjectData);  // Remove the array brackets as Supabase v2 handles this
+          .insert(subjectData);
       } else {
         response = await supabase
           .from('subjects')
