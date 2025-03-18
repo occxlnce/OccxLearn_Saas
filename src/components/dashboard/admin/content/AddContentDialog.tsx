@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -94,15 +95,14 @@ const AddContentDialog: React.FC<AddContentDialogProps> = ({
       let fileUrl = null;
       
       if (file) {
-        const userId = authData.session.user.id;
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-        const filePath = `content-files/${fileName}`;
+        const filePath = `${fileName}`;
         
         console.log('Uploading file to path:', filePath);
         
         const { error: uploadError, data: uploadData } = await supabase.storage
-          .from('content-files')
+          .from('school_content')
           .upload(filePath, file, {
             cacheControl: '3600',
             upsert: false
@@ -114,7 +114,7 @@ const AddContentDialog: React.FC<AddContentDialogProps> = ({
         }
         
         const { data: urlData } = supabase.storage
-          .from('content-files')
+          .from('school_content')
           .getPublicUrl(filePath);
         
         fileUrl = urlData.publicUrl;
